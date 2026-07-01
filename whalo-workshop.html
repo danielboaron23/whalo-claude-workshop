@@ -310,6 +310,11 @@ h2.headline{ font-weight:800; letter-spacing:-.025em; }
 .way-name{ font-family:var(--font-head); font-weight:800; font-size:clamp(22px,1.9vw,26px); letter-spacing:-.01em; color:var(--text); direction:ltr; }
 .way-sub{ font-size:clamp(13px,1.1vw,15px); color:var(--faint); margin-top:3px; }
 .way-role{ font-size:clamp(14px,1.25vw,16.5px); color:var(--muted); line-height:1.55; margin-top:12px; }
+.way-list{ list-style:none; margin:16px 0 0; padding-top:15px; border-top:1px solid var(--hair); display:grid; gap:10px; }
+.way-list li{ position:relative; padding-inline-start:19px; font-size:clamp(13px,1.05vw,15px); color:var(--muted); line-height:1.5; }
+.way-list li::before{ content:""; position:absolute; inset-inline-start:2px; top:.58em; width:6px; height:6px; border-radius:50%; background:var(--lime); }
+.way.blue .way-list li::before{ background:var(--blue-soft); }
+.way-list li b{ color:var(--text); font-weight:700; }
 @media (max-width:860px){ .ways3{ grid-template-columns:1fr; max-width:460px; } }
 
 /* ============================================================================
@@ -338,8 +343,8 @@ h2.headline{ font-weight:800; letter-spacing:-.025em; }
 .sk-panel.good{ border-color:rgba(198,242,78,.4); background:linear-gradient(180deg,rgba(198,242,78,.07),rgba(255,255,255,.02)); }
 .sk-phead{ display:flex; justify-content:space-between; font-family:var(--font-head); font-weight:800; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); }
 .sk-panel.good .sk-phead{ color:var(--lime-ink); }
-.sk-msg{ background:rgba(0,0,0,.22); border:1px solid var(--hair); border-radius:12px; padding:13px 15px; font-size:13.5px; line-height:1.5; color:var(--text); }
-.sk-msg .role{ display:block; font-size:11px; font-weight:800; color:var(--faint); margin-bottom:5px; }
+.sk-msg{ background:rgba(0,0,0,.22); border:1px solid var(--hair); border-radius:14px; padding:clamp(18px,2vw,30px); font-size:clamp(16px,1.65vw,24px); line-height:1.65; color:var(--text); flex:1 1 auto; display:flex; flex-direction:column; justify-content:center; }
+.sk-msg .role{ display:block; font-size:clamp(11px,1vw,13px); font-weight:800; color:var(--faint); margin-bottom:9px; }
 .sk-time{ font-family:var(--font-head); font-weight:800; font-size:30px; color:var(--text); }
 .sk-panel.good .sk-time{ color:var(--lime); }
 .sk-time-lbl{ font-size:12.5px; color:var(--muted); margin-top:2px; }
@@ -718,8 +723,6 @@ h2.headline{ font-weight:800; letter-spacing:-.025em; }
       <div class="pingo-stage" data-animation="wave"></div>
       <div class="eyebrow anim">סדנת AI · Whalo</div>
       <h1 class="title anim">מתחילים עם <span class="accent">Claude&nbsp;Desktop&nbsp;app</span></h1>
-      <p class="lead anim">5 שעות. בסוף היום תצאו עם אפליקציה קטנה שבניתם בעצמכם,
-        ועם Skill משלכם — בלי לכתוב שורת קוד אחת.</p>
     </section>
 
     <!-- ===== 1b · ABOUT ME (Design AI brand) ============= -->
@@ -1080,6 +1083,11 @@ h2.headline{ font-weight:800; letter-spacing:-.025em; }
           <div class="way-name">Skills</div>
           <div class="way-sub">מתכונים</div>
           <div class="way-role">ללמד את Claude משימה חוזרת — <span class="accent">פעם אחת, ולתמיד</span>.</div>
+          <ul class="way-list">
+            <li><b>מתי:</b> משימות שחוזרות באותו פורמט — קו״ח, קופי, דוחות.</li>
+            <li>נשמר בקובץ <b>SKILL.md</b> ונטען אוטומטית כשהמשימה רלוונטית.</li>
+            <li>נכנס ל-git — <b>כל הצוות</b> מקבל את אותו הסקיל.</li>
+          </ul>
         </div>
         <!-- 2 · Connectors -->
         <div class="way blue anim">
@@ -1090,6 +1098,11 @@ h2.headline{ font-weight:800; letter-spacing:-.025em; }
           <div class="way-name">Connectors</div>
           <div class="way-sub">חיבורים</div>
           <div class="way-role">לחבר את Claude למקורות שלכם — Gmail, Drive, Slack, Notion.</div>
+          <ul class="way-list">
+            <li>Claude <b>קורא וכותב</b> ישר מהמקור — בלי העתק-הדבק.</li>
+            <li>מתחברים <b>פעם אחת</b> בהגדרות, וזה זמין תמיד.</li>
+            <li><b>דוגמה:</b> למשוך בריף מ-Drive, לכתוב סיכום ל-Notion.</li>
+          </ul>
         </div>
         <!-- 3 · Plugins -->
         <div class="way lime anim">
@@ -1100,6 +1113,11 @@ h2.headline{ font-weight:800; letter-spacing:-.025em; }
           <div class="way-name">Plugins</div>
           <div class="way-sub">תוספים</div>
           <div class="way-role">להוסיף יכולות וכלים מוכנים מהקהילה — <span class="accent">בלחיצה</span>.</div>
+          <ul class="way-list">
+            <li>חבילות מוכנות של <b>Skills + Connectors</b> ביחד.</li>
+            <li>מתקינים מ-<b>marketplace</b> — בלי הגדרה ידנית.</li>
+            <li>הדרך המהירה להתחיל — בלי לבנות מאפס.</li>
+          </ul>
         </div>
       </div>
     </section>
@@ -1545,18 +1563,27 @@ h2.headline{ font-weight:800; letter-spacing:-.025em; }
       </div>
     </section>
 
-    <!-- ===== 12 · MICRO-TRY 3 ============= -->
-    <section class="slide layout-split practice">
-      <div class="copy">
-        <span class="pill anim">✋ ידיים על המקלדת · 8 דק'</span>
-        <h2 class="headline anim" style="margin-top:18px">בנו Skill זעיר</h2>
-        <ol class="steps anim">
-          <li>תארו ל-Claude משימה חוזרת אחת שלכם</li>
-          <li>בקשו: "תבנה לי את זה כ-Skill"</li>
-          <li>הפעילו את ה-Skill שנוצר — וראו אותו עובד</li>
-        </ol>
+    <!-- ===== 12 · MCP & PLUGINS ============= -->
+    <section class="slide" style="flex-direction:column;justify-content:center;align-items:center">
+      <div class="anim" style="text-align:center;max-width:900px">
+        <div class="eyebrow" style="display:inline-block">הרחבת Claude · מתחת למכסה המנוע</div>
+        <h2 class="headline" style="font-size:clamp(28px,3.6vw,50px)">MCP <span class="accent">&amp;</span> Plugins</h2>
+        <p class="lead" style="margin:10px auto 0;text-align:center">Skills קיבל פרק שלם — אלה שני הרכיבים הנוספים שמרחיבים את Claude: <span class="accent">הפרוטוקול</span> שמחבר אותו לעולם, ו<span class="accent">האריזה</span> שהופכת חיבור למותקן-בלחיצה.</p>
       </div>
-      <div class="pingo-stage" data-animation="nod"></div>
+      <div class="sk-2">
+        <div class="sk-panel anim" style="border-color:rgba(111,188,250,.4);background:linear-gradient(180deg,rgba(111,188,250,.07),rgba(255,255,255,.02))">
+          <div class="sk-phead" style="color:var(--blue-soft)"><span>MCP · Model Context Protocol</span><span>🔌</span></div>
+          <div class="sk-big">השפה המשותפת שמחברת את Claude לעולם</div>
+          <div class="sk-td">פרוטוקול פתוח וסטנדרטי — לא המצאה של Whalo — שדרכו Claude "מדבר" עם כלים חיצוניים: קבצים, APIs, מסדי נתונים. זה מה שמריץ מתחת למכסה המנוע כל <b style="color:var(--text)">Connector</b> שראיתם (Gmail, Drive, Slack, Notion).</div>
+          <div class="sk-ex"><div class="exh">שווה לזכור</div><div class="exl">"MCP server" = החיבור בפועל למקור מסוים. Connector שמפעילים בהגדרות = MCP server מוכן שהופעל בלחיצה.</div></div>
+        </div>
+        <div class="sk-panel good anim">
+          <div class="sk-phead"><span>PLUGINS · תוספים</span><span>🧩</span></div>
+          <div class="sk-big">חבילה מוכנה — Skill + MCP ביחד</div>
+          <div class="sk-td">Plugin מארז <b style="color:var(--text)">Skills, MCP servers וחיבורים</b> יחד לחבילה אחת שמתקינים מה-marketplace <b style="color:var(--text)">בלחיצה אחת</b> — בלי להגדיר כל רכיב בנפרד. הדרך המהירה להוסיף יכולת שלמה שכבר בנה מישהו אחר.</div>
+          <div class="sk-ex"><div class="exh">שווה לזכור</div><div class="exl">בונים Skill בעצמכם כשזה ספציפי לכם. מתקינים Plugin כשמישהו כבר פתר את זה — ורוצים את זה מהר.</div></div>
+        </div>
+      </div>
     </section>
 
     <!-- ===== 13 · SECTION DIVIDER → PRACTICE ============= -->
@@ -1571,42 +1598,6 @@ h2.headline{ font-weight:800; letter-spacing:-.025em; }
       <div class="pingo-stage" data-animation="present"></div>
     </section>
 
-    <!-- ===== 14 · GUIDED BUILD ============= -->
-    <section class="slide layout-split reverse practice">
-      <div class="copy">
-        <span class="pill anim">🛠️ בנייה מודרכת · ~45 דק'</span>
-        <h2 class="headline anim" style="margin-top:18px">כולנו בונים את אותו כלי</h2>
-        <ol class="steps anim">
-          <li>[נמלא ביחד: מה הכלי המשותף שבונים]</li>
-          <li>שלב-שלב, כולם באותו קצב</li>
-          <li>מריצים אותו על המחשב ורואים שעובד</li>
-        </ol>
-      </div>
-      <div class="pingo-stage" data-animation="present"></div>
-    </section>
-
-    <!-- ===== 15 · BRING YOUR OWN ============= -->
-    <section class="slide layout-two-col practice">
-      <div class="pingo-stage" data-animation="celebrate"></div>
-      <div class="head anim">
-        <div>
-          <div class="eyebrow">ההזדמנות שלכם</div>
-          <h2 class="headline">עכשיו על משימה אמיתית שלכם</h2>
-        </div>
-        <span class="pill">🚀 ~45 דק'</span>
-      </div>
-      <div class="cols">
-        <div class="card anim">
-          <p class="body">קחו את המשימה החוזרת שהבאתם מהבית והפכו אותה לכלי
-            או ל-Skill. מנטור מסתובב לעזור לכל אחד.</p>
-        </div>
-        <div class="card anim">
-          <p class="body">אין רעיון? בחרו מהדוגמאות לתפקיד שלכם.
-            המטרה: דבר אחד קטן שעובד — לא מושלם.</p>
-        </div>
-      </div>
-      <p class="note anim">בלי אינטגרציות חיות מסוכנות — בונים על חומר בטוח.</p>
-    </section>
 
     <!-- ===== 16 · PLAYBOOK ============= -->
     <section class="slide layout-two-col">
@@ -1724,13 +1715,24 @@ h2.headline{ font-weight:800; letter-spacing:-.025em; }
       <p class="note anim" style="max-width:76ch;text-align:center">📁 הקבצים המקומיים נפתחים מתיקיית הסדנה — <span style="font-family:ui-monospace,Menlo,monospace">workshop-hub.html · projects/ · cowork-vs-code-demo.md</span></p>
     </section>
 
-    <section class="slide layout-closing">
-      <div class="pingo-stage" data-animation="celebrate"></div>
-      <div class="eyebrow anim">דברים לקחת</div>
-      <h2 class="headline anim">3 מהלכים <span class="accent">לזכור</span></h2>
-      <p class="lead anim">תארו במילים פשוטות · תנו לו לפעול על הקבצים שלכם ·
-        משימה חוזרת? בקשו ממנו לבנות Skill.</p>
-      <div class="foot anim">Whalo · AI Week — בואו נבנה 🐧</div>
+    <section class="slide whoami-slide">
+      <div class="dark-bg"></div>
+
+      <!-- Full-bleed photo right -->
+      <div class="whoami-photo">
+        <img src="assets/daniel-nobg.png" alt="Daniel Boaron" />
+        <div class="whoami-photo-corner"></div>
+      </div>
+
+      <!-- Text left -->
+      <div class="whoami-text" style="direction:rtl;text-align:right">
+        <div class="whoami-brand" style="justify-content:flex-end">
+          <img src="assets/design-ai-logo.svg" alt="Design AI" />
+        </div>
+        <div class="whoami-name">תודה רבה! 🙏</div>
+        <div class="whoami-bio">היה כיף לבנות איתכם היום. בהצלחה בהמשך הדרך עם Claude —
+          ונתראה בסביבה 👋</div>
+      </div>
     </section>
 
   </main>

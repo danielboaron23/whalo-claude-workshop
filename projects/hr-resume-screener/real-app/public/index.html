@@ -122,9 +122,9 @@
 
     <div class="uploader">
       <h2>⬆️ הוסיפו מועמד/ת ידנית</h2>
-      <p>גררו קובץ <b>.txt / .md</b> או הדביקו טקסט — הבדיקה רצה בשרת (אותו rubric).</p>
+      <p>גררו קובץ <b>.pdf / .txt / .md</b> או הדביקו טקסט — הבדיקה רצה בשרת (אותו rubric).</p>
       <div class="drop" id="drop">📄 <b>גררו קובץ לכאן</b> או לחצו לבחירה
-        <input type="file" id="file" accept=".txt,.md,.text" hidden></div>
+        <input type="file" id="file" accept=".pdf,.txt,.md,.text" hidden></div>
       <div class="fields">
         <input type="text" id="cvname" placeholder="שם המועמד/ת (לא חובה)">
         <textarea id="cvtext" placeholder="…או הדביקו כאן את טקסט קורות החיים"></textarea>
@@ -143,11 +143,15 @@
       ללא הגדרת token היא רצה במצב דמו. כל הנתונים בדויים.</footer>
   </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
   const RECLBL = { yes:["לראיון","yes"], maybe:["אולי","maybe"], no:["לא כרגע","no"] };
   let candidates = [];
   const list = document.getElementById('list'), connResult = document.getElementById('connResult');
-  const api = (p,o)=>fetch(p,o).then(r=>r.json());
+  // When the page is opened as a file:// (e.g. IDE preview) relative /api calls
+  // have no host — fall back to the running server.
+  const API_BASE = location.protocol==='http:'||location.protocol==='https:' ? '' : 'http://localhost:4000';
+  const api = (p,o)=>fetch(API_BASE+p,o).then(r=>r.json());
 
   function render(highlightName){
     candidates.sort((a,b)=>b.score-a.score);
@@ -211,7 +215,31 @@
   ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over');}));
   ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over');}));
   drop.addEventListener('drop',e=>{const f=e.dataTransfer.files[0];if(f)readFile(f);});
-  function readFile(f){const r=new FileReader();r.onload=()=>{cvtext.value=r.result;if(!cvname.value)cvname.value=f.name.replace(/\.(txt|md|text)$/i,'').replace(/[-_]/g,' ');};r.readAsText(f);}
+  function setNameFrom(f){ if(!cvname.value) cvname.value=f.name.replace(/\.(pdf|txt|md|text)$/i,'').replace(/[-_]/g,' '); }
+  async function extractPdf(f){
+    const lib=window.pdfjsLib;
+    lib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    const pdf=await lib.getDocument({data:await f.arrayBuffer()}).promise;
+    let out='';
+    for(let i=1;i<=pdf.numPages;i++){
+      const tc=await (await pdf.getPage(i)).getTextContent();
+      out+=tc.items.map(it=>it.str).join(' ')+'\n';
+    }
+    return out.trim();
+  }
+  async function readFile(f){
+    if(/\.pdf$/i.test(f.name)||f.type==='application/pdf'){
+      cvtext.value='⏳ מחלץ טקסט מה-PDF…';
+      try{ const t=await extractPdf(f);
+        cvtext.value=t;
+        if(!t) showResult('לא נמצא טקסט ב-PDF (ייתכן שזה קובץ סרוק/תמונה). נסו קובץ טקסט או הדבקה ידנית.',true);
+      }catch(e){ cvtext.value=''; showResult('כשל בקריאת ה-PDF: '+e.message,true); }
+      setNameFrom(f); return;
+    }
+    const r=new FileReader();
+    r.onload=()=>{ cvtext.value=r.result; setNameFrom(f); };
+    r.readAsText(f);
+  }
   document.getElementById('check').addEventListener('click',async()=>{
     const text=cvtext.value.trim(); if(!text){cvtext.focus();return;}
     const c=await api('/api/score',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,name:cvname.value})});
