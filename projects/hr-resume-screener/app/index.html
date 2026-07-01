@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>מסנן קורות חיים · Whalo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap');
+  :root{
+    --bg:#19135f; --bg2:#0e0a2c; --card:#241c6e; --hair:rgba(255,255,255,.12);
+    --text:#fff; --muted:rgba(255,255,255,.62); --faint:rgba(255,255,255,.4);
+    --lime:#c6f24e; --blue:#6fbcfa; --azure:#1e9cf5;
+    --ease:cubic-bezier(.32,.72,0,1); --font:'Heebo',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{ font-family:var(--font); color:var(--text); min-height:100vh; padding:clamp(20px,4vw,56px);
+    background:
+      radial-gradient(900px 600px at 85% -10%, rgba(30,156,245,.30), transparent 60%),
+      radial-gradient(700px 500px at 0% 110%, rgba(198,242,78,.10), transparent 55%),
+      linear-gradient(180deg, var(--bg), var(--bg2)); }
+  .wrap{ max-width:980px; margin:0 auto; }
+
+  header{ margin-bottom:20px; }
+  .eyebrow{ display:inline-block; padding:6px 14px; border-radius:999px; font-size:11px; font-weight:700;
+    letter-spacing:.18em; text-transform:uppercase; color:var(--lime);
+    background:rgba(198,242,78,.10); border:1px solid rgba(198,242,78,.3); }
+  h1{ font-size:clamp(28px,4vw,44px); font-weight:800; letter-spacing:-.02em; margin:14px 0 8px; }
+  .sub{ color:var(--muted); font-size:clamp(14px,1.4vw,17px); }
+  .job{ margin-top:16px; padding:14px 18px; border-radius:14px; background:rgba(255,255,255,.05);
+    border:1px solid var(--hair); font-size:14px; color:var(--muted); }
+  .job b{ color:var(--text); }
+
+  /* ---------- connector bar (Notion) ---------- */
+  .connector{ margin-top:18px; border-radius:18px; padding:18px 20px;
+    background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); border:1px solid var(--hair); }
+  .conn-head{ display:flex; align-items:center; gap:13px; }
+  .conn-logo{ width:40px; height:40px; border-radius:11px; background:#fff; color:#0b1020;
+    display:flex; align-items:center; justify-content:center; font-weight:900; font-size:22px; flex-shrink:0; }
+  .conn-head .t b{ font-size:15px; } .conn-head .t span{ display:block; font-size:12px; color:var(--faint); margin-top:1px; }
+  .conn-status{ margin-inline-start:auto; font-size:12px; font-weight:700; color:var(--lime);
+    background:rgba(198,242,78,.12); border:1px solid rgba(198,242,78,.3); padding:5px 12px; border-radius:999px; }
+  .conn-actions{ display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  .conn-result{ display:none; margin-top:14px; padding:14px 16px; border-radius:12px;
+    background:rgba(198,242,78,.08); border:1px solid rgba(198,242,78,.3); font-size:13px; }
+  .conn-result.show{ display:block; }
+  .conn-result h4{ font-size:14px; margin-bottom:8px; color:var(--lime); }
+  .conn-result table{ width:100%; border-collapse:collapse; font-size:12.5px; }
+  .conn-result td,.conn-result th{ text-align:right; padding:5px 8px; border-bottom:1px solid var(--hair); color:var(--muted); }
+  .conn-result th{ color:var(--faint); font-weight:700; }
+  .conn-result a{ color:var(--blue); text-decoration:none; font-weight:700; }
+
+  /* ---------- upload panel ---------- */
+  .uploader{ margin-top:16px; border-radius:18px; padding:20px;
+    background:linear-gradient(180deg, rgba(198,242,78,.07), rgba(255,255,255,.02));
+    border:1px solid rgba(198,242,78,.25); }
+  .uploader h2{ font-size:18px; font-weight:800; margin-bottom:4px; }
+  .uploader p{ color:var(--muted); font-size:13px; margin-bottom:14px; }
+  .drop{ border:1.5px dashed rgba(198,242,78,.5); border-radius:14px; padding:18px; text-align:center;
+    color:var(--muted); font-size:14px; transition:background .2s, border-color .2s; cursor:pointer; }
+  .drop.over{ background:rgba(198,242,78,.10); border-color:var(--lime); color:var(--text); }
+  .drop b{ color:var(--lime); }
+  .fields{ display:grid; grid-template-columns:1fr; gap:10px; margin-top:12px; }
+  textarea,input[type=text]{ width:100%; font-family:var(--font); font-size:14px; color:var(--text);
+    background:rgba(0,0,0,.22); border:1px solid var(--hair); border-radius:12px; padding:12px 14px; resize:vertical; }
+  textarea{ min-height:84px; } textarea:focus,input:focus{ outline:none; border-color:var(--azure); }
+  textarea::placeholder,input::placeholder{ color:var(--faint); }
+  .uprow{ display:flex; gap:10px; align-items:center; margin-top:12px; flex-wrap:wrap; }
+  .btn{ font-family:var(--font); font-weight:800; font-size:14px; cursor:pointer; border:none;
+    padding:11px 20px; border-radius:12px; background:linear-gradient(180deg,var(--lime),#b6e63c); color:#0b1b2b;
+    box-shadow:0 12px 28px -12px rgba(198,242,78,.8); transition:transform .3s var(--ease); }
+  .btn:hover{ transform:translateY(-2px); } .btn:active{ transform:scale(.97); }
+  .btn.ghost{ background:rgba(255,255,255,.06); color:var(--text); border:1px solid var(--hair); box-shadow:none; }
+  .note-mini{ color:var(--faint); font-size:12px; }
+
+  .row{ display:flex; align-items:center; gap:12px; margin:24px 2px 12px; color:var(--faint);
+    font-size:12px; letter-spacing:.12em; text-transform:uppercase; font-weight:700; }
+  .row::after{ content:""; flex:1; height:1px; background:var(--hair); }
+
+  .card{ position:relative; border-radius:18px; padding:22px 24px; margin-bottom:14px;
+    background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
+    border:1px solid var(--hair); box-shadow:0 30px 70px -44px rgba(0,0,0,.7), inset 0 1px 1px rgba(255,255,255,.12);
+    cursor:pointer; transition:transform .5s var(--ease), box-shadow .5s var(--ease), border-color .3s; }
+  .card:hover{ transform:translateY(-3px); }
+  .card.new{ border-color:rgba(198,242,78,.6); box-shadow:0 0 0 3px rgba(198,242,78,.18), 0 30px 70px -44px rgba(0,0,0,.7); }
+  .card .badge-new{ position:absolute; top:-10px; right:18px; color:#0b1b2b; background:var(--lime);
+    font-size:11px; font-weight:800; padding:3px 10px; border-radius:999px; }
+  .card .badge-new.notion{ background:#fff; }
+  .chead{ display:grid; grid-template-columns:44px 1fr auto; gap:16px; align-items:center; }
+  .rank{ width:44px; height:44px; border-radius:13px; display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:18px; background:rgba(255,255,255,.06); border:1px solid var(--hair); }
+  .card.top .rank{ background:linear-gradient(180deg,var(--lime),#aada3c); color:#0b1b2b; border-color:var(--lime); }
+  .who .name{ font-size:19px; font-weight:700; }
+  .who .meta{ font-size:13px; color:var(--faint); margin-top:2px; }
+  .src{ font-size:11px; padding:2px 8px; border-radius:999px; border:1px solid var(--hair); color:var(--faint); margin-inline-start:6px; }
+  .score{ text-align:left; min-width:130px; }
+  .score .num{ font-size:26px; font-weight:800; font-variant-numeric:tabular-nums; }
+  .score .num small{ font-size:13px; color:var(--faint); font-weight:600; }
+  .bar{ height:7px; border-radius:99px; background:rgba(255,255,255,.10); margin-top:6px; overflow:hidden; }
+  .bar i{ display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,var(--azure),var(--lime)); transition:width .6s var(--ease); }
+
+  .rec{ display:inline-block; margin-top:3px; padding:3px 11px; border-radius:999px; font-size:12px; font-weight:700; }
+  .rec.yes{ background:rgba(198,242,78,.16); color:var(--lime); border:1px solid rgba(198,242,78,.4); }
+  .rec.maybe{ background:rgba(30,156,245,.16); color:var(--blue); border:1px solid rgba(111,188,250,.4); }
+  .rec.no{ background:rgba(255,255,255,.06); color:var(--faint); border:1px solid var(--hair); }
+
+  .detail{ max-height:0; overflow:hidden; transition:max-height .5s var(--ease); }
+  .card.open .detail{ max-height:360px; }
+  .detail-inner{ padding-top:18px; margin-top:18px; border-top:1px solid var(--hair); }
+  .reason{ color:var(--muted); font-size:14px; line-height:1.6; margin-bottom:14px; }
+  .tags{ display:flex; flex-wrap:wrap; gap:8px; }
+  .tag{ font-size:12.5px; padding:5px 11px; border-radius:999px; border:1px solid var(--hair); }
+  .tag.up{ color:var(--lime); background:rgba(198,242,78,.08); }
+  .tag.down{ color:#ffb4a8; background:rgba(255,120,100,.08); }
+  .hint{ text-align:center; color:var(--faint); font-size:12px; margin-top:18px; letter-spacing:.06em; }
+  footer{ margin-top:26px; color:var(--faint); font-size:12px; text-align:center; line-height:1.7; }
+  code{ background:rgba(255,255,255,.08); padding:2px 7px; border-radius:6px; font-size:12px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <span class="eyebrow">HR · Whalo</span>
+      <h1>מסנן קורות חיים</h1>
+      <p class="sub">דירוג מועמדים מול משרה אחת — ציון שקוף ונימוק לכל אחד.</p>
+      <div class="job">📋 משרה: <b>Game Economy Analyst</b> · צוות Monetization & Economy ·
+        rubric: דרישות חובה 40 · ניסיון בתחום 25 · כישורים טכניים 20 · סניוריטי 10 · שפה 5.</div>
+    </header>
+
+    <!-- ===== Notion connector ===== -->
+    <div class="connector">
+      <div class="conn-head">
+        <span class="conn-logo">N</span>
+        <div class="t"><b>Notion · מסד מועמדים „Candidates”</b><span>connector מחובר · 3 רשומות בפייפליין</span></div>
+        <span class="conn-status">● מחובר</span>
+      </div>
+      <div class="conn-actions">
+        <button class="btn ghost" id="pullNotion">⤓ סנכרן מועמדים מ-Notion</button>
+        <button class="btn" id="pushNotion">⤴ כתוב דירוג בחזרה ל-Notion</button>
+      </div>
+      <div class="conn-result" id="connResult"></div>
+    </div>
+
+    <!-- ===== Upload & check ===== -->
+    <div class="uploader">
+      <h2>⬆️ או העלו קורות חיים ידנית</h2>
+      <p>גררו קובץ <b>.txt / .md</b>, או הדביקו את הטקסט — והכלי ידרג מול המשרה ויכניס לרשימה.</p>
+      <div class="drop" id="drop">📄 <b>גררו קובץ לכאן</b> או לחצו לבחירה
+        <input type="file" id="file" accept=".txt,.md,.text" hidden></div>
+      <div class="fields">
+        <input type="text" id="cvname" placeholder="שם המועמד/ת (לא חובה — ננסה לזהות מהטקסט)">
+        <textarea id="cvtext" placeholder="…או הדביקו כאן את טקסט קורות החיים"></textarea>
+      </div>
+      <div class="uprow">
+        <button class="btn" id="check">בדוק ודרג ▸</button>
+        <button class="btn ghost" id="clear">נקה</button>
+        <span class="note-mini">הבדיקה כאן היא גרסה מהירה מבוססת-כללים להדגמה. הניתוח המעמיק נעשה ע״י Claude/ה-Skill.</span>
+      </div>
+    </div>
+
+    <div class="row">דירוג מועמדים</div>
+    <div id="list"></div>
+    <p class="hint">👆 לחצו על מועמד לפתיחת הנימוק המלא</p>
+
+    <footer>
+      מקורות: <code>data/job-description.md</code> · <code>data/candidates.json</code> ·
+      <code>data/notion-candidates.json</code> · <code>data/sample-cvs/</code> ·
+      Skill: <code>resume-screener</code>.<br>
+      חיבור ה-Notion כאן מדומה להדגמה. האינטגרציה האמיתית רצה ב-Claude Code עם ה-connector של Notion.
+      כל הנתונים בדויים — הכלי ממיין ומסביר, ההחלטה אצל האדם.
+    </footer>
+  </div>
+
+<script>
+  // Base ranking — produced by the `resume-screener` skill over data/ (embedded so the app runs anywhere)
+  const RESULTS = [
+    { name:"מאיה לוין", exp:4, score:92, rec:"yes", source:"data",
+      reason:"עומדת בכל דרישות החובה עם ניסיון gaming free-to-play ישיר, A/B על חבילות in-app, SQL+Python, ותוצאה מדידה (ARPDAU +12%). התאמה כמעט מושלמת לתפקיד.",
+      up:["gaming F2P 4 שנים","A/B על חבילות","SQL + Python","תוצאה מדידה"], down:[] },
+    { name:"דניאל כהן", exp:6, score:78, rec:"yes", source:"data",
+      reason:"כישורים טכניים חזקים מאוד (SQL, מודלים, ניסויים) וניסיון בכלכלת מוצר ותמחור. הפער היחיד: אין ניסיון gaming — אך הבסיס האנליטי מצוין ובר-העברה.",
+      up:["SQL חזק","ניסויי תמחור","6 שנות ניסיון"], down:["ללא ניסיון gaming"] },
+    { name:"טל אברהם", exp:8, score:72, rec:"maybe", source:"data",
+      reason:"הבנה עמוקה של כלכלת משחק וניסיון בכיר בתכנון מטבעות sinks/sources. החיסרון: SQL/קוד חלשים — וזו דרישת חובה. שווה שיחה כדי לבדוק את הפער הטכני.",
+      up:["8 שנים gaming economy","תכנון כלכלות"], down:["SQL/קוד חלשים (חובה)"] },
+    { name:"רוני שמש", exp:1, score:48, rec:"no", source:"data",
+      reason:"נלהב ומבין את הכלכלה כשחקן, אך ניסיון של שנה בלבד, SQL בסיסי וללא ניסיון בניסויים. ג'וניור מדי לתפקיד כרגע — פוטנציאל לעתיד.",
+      up:["תשוקה למשחקים","פוטנציאל"], down:["שנה ניסיון","SQL בסיסי","ללא ניסויים"] },
+    { name:"ליאת מזרחי", exp:3, score:40, rec:"no", source:"data",
+      reason:"רקע ב-marketing/UA ללא ניסיון בכלכלת משחק או בתמחור in-app, ו-SQL בינוני. הפער מול דרישות החובה גדול מדי לתפקיד הזה.",
+      up:["ניסיון אנליטי כללי"], down:["ללא כלכלת משחק","ללא תמחור in-app","SQL בינוני"] },
+  ];
+  // Mock Notion "Candidates" database (mirrors data/notion-candidates.json)
+  const NOTION_CANDIDATES = [
+    { name:"אורי גל",   cv:"Product Analyst gaming free-to-play 5 שנים. SQL מתקדם, ניסויי A/B על חבילות in-app, Mixpanel, Python. עברית ואנגלית שוטף." },
+    { name:"הדר נחום",  cv:"Junior Data Analyst שנתיים. SQL בסיסי, Excel. ללא ניסיון gaming או בניסויים. עברית, אנגלית טובה." },
+    { name:"עומר ביטון", cv:"Economy Designer במשחקי מובייל 6 שנים. תכנון מטבעות וכלכלת משחק. SQL חלש. אנגלית שוטף." },
+  ];
+  const RECLBL = { yes:["לראיון","yes"], maybe:["אולי","maybe"], no:["לא כרגע","no"] };
+  const SRCLBL = { upload:"הועלה", notion:"Notion" };
+  let extra = [];   // candidates added via upload / Notion sync
+
+  /* ---------- rubric-aligned heuristic scorer (offline demo) ---------- */
+  function scoreCV(text, nameHint, source){
+    const t = (text||'').toLowerCase();
+    const has = re => re.test(t);
+    const domainGame = has(/gaming|game|free.?to.?play|f2p|כלכלת משחק|מטבע|in.?app|חבילות|arpdau|שחקנ/);
+    const adjacent   = has(/תמחור|pricing|מנוי|economy|כלכל|monetiz/);
+    const sql = has(/\bsql\b/), python = has(/python|פייתון/);
+    const exper = has(/a\/?b|ניסוי|experiment/);
+    const viz = has(/tableau|looker|power ?bi|דשבורד|dashboard|ויזואל/);
+    const analysis = has(/analyst|אנליסט|ניתוח|\bdata\b|דאטה|בינה עסקית|\bbi\b|mixpanel|amplitude|snowflake/);
+    const eng = has(/english|אנגלית/), heb = has(/hebrew|עברית/);
+    let years = 0; const m = t.match(/(\d+(?:\.\d+)?)\s*(?:\+)?\s*(?:שנ|years?|yrs?)/);
+    if (m) years = parseFloat(m[1]); else if (has(/שנה אחת|שנה /)) years = 1;
+
+    let mh = 0; if(analysis) mh+=10; if(sql) mh+=15; if(years>=2) mh+=8; if(eng) mh+=7;
+    let dom = domainGame ? 25 : adjacent ? 12 : 0;
+    let hs = Math.min(20,(sql?7:0)+(python?5:0)+(exper?5:0)+(viz?3:0));
+    let sen = years>=2&&years<=7?10 : years>=8?7 : years===1?4 : 2;
+    let comm = (eng&&heb)?5 : (eng||heb)?3 : 1;
+    let score = Math.round(Math.max(0,Math.min(100, mh+dom+hs+sen+comm)));
+
+    const up=[], down=[];
+    if(domainGame) up.push("ניסיון gaming/F2P"); else down.push("אין ניסיון gaming");
+    if(sql) up.push("SQL"); else down.push("ללא SQL (חובה)");
+    if(python) up.push("Python");
+    if(exper) up.push("ניסויי A/B"); else down.push("ללא ניסויים");
+    if(viz) up.push("ויזואליזציה");
+    if(years) up.push(years+" שנות ניסיון"); else down.push("ניסיון לא ברור");
+    if(eng&&heb) up.push("עברית + אנגלית");
+
+    const rec = score>=75?"yes" : score>=55?"maybe" : "no";
+    const recTxt = {yes:"מתאים/ה לראיון",maybe:"שווה שיחה",no:"פער גדול מדי כרגע"}[rec];
+    const reason = `ציון ${score}/100 לפי ה-rubric. ${domainGame?"יש ניסיון בתחום ה-gaming. ":adjacent?"ניסיון אנליטי סמוך אך לא gaming ישיר. ":"אין ניסיון בתחום ה-gaming. "}`+
+      `${sql?"שליטה ב-SQL קיימת. ":"חסר SQL — דרישת חובה. "}${recTxt}.`;
+
+    let name = nameHint && nameHint.trim();
+    if(!name){ const first=(text||'').trim().split('\n')[0].trim(); name=(first&&first.length<=30)?first:"מועמד/ת חדש/ה"; }
+    return { name, exp:years, score, rec, reason, up, down, isNew:true, source:source||"upload" };
+  }
+
+  /* ---------- render ---------- */
+  const list = document.getElementById('list');
+  function allCands(){ return [...RESULTS, ...extra].sort((a,b)=>b.score-a.score); }
+  function render(highlightName){
+    const all = allCands();
+    list.innerHTML='';
+    all.forEach((c,idx)=>{
+      const [lbl,cls] = RECLBL[c.rec];
+      const el = document.createElement('div');
+      el.className = 'card' + (idx===0?' top':'') + (c.isNew?' new':'');
+      const badge = c.isNew ? `<span class="badge-new ${c.source==='notion'?'notion':''}">${c.source==='notion'?'↳ Notion':'חדש · הועלה'}</span>` : '';
+      const srcChip = c.source==='notion' ? '<span class="src">Notion</span>' : '';
+      el.innerHTML = `
+        ${badge}
+        <div class="chead">
+          <div class="rank">${idx+1}</div>
+          <div class="who">
+            <div class="name">${c.name}${srcChip}</div>
+            <div class="meta">${c.exp?c.exp+' שנות ניסיון':'ניסיון לא ידוע'} · <span class="rec ${cls}">${lbl}</span></div>
+          </div>
+          <div class="score">
+            <div class="num">${c.score}<small> / 100</small></div>
+            <div class="bar"><i style="width:${c.score}%"></i></div>
+          </div>
+        </div>
+        <div class="detail"><div class="detail-inner">
+          <div class="reason">${c.reason}</div>
+          <div class="tags">
+            ${c.up.map(x=>`<span class="tag up">✓ ${x}</span>`).join('')}
+            ${c.down.map(x=>`<span class="tag down">✕ ${x}</span>`).join('')}
+          </div>
+        </div></div>`;
+      el.addEventListener('click', ()=> el.classList.toggle('open'));
+      if(c.name===highlightName){ el.classList.add('open'); setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'center'}),60); }
+      list.appendChild(el);
+    });
+    if(!highlightName && list.firstChild) list.firstChild.classList.add('open');
+  }
+
+  /* ---------- Notion connector (simulated) ---------- */
+  const pullBtn=document.getElementById('pullNotion'), pushBtn=document.getElementById('pushNotion'),
+        connResult=document.getElementById('connResult');
+  pullBtn.addEventListener('click', ()=>{
+    pullBtn.textContent='…מסנכרן מ-Notion';
+    setTimeout(()=>{
+      const have = new Set(extra.map(c=>c.name));
+      let added=0;
+      NOTION_CANDIDATES.forEach(n=>{ if(!have.has(n.name)){ extra.push(scoreCV(n.cv,n.name,'notion')); added++; } });
+      pullBtn.textContent='✓ סונכרן מ-Notion';
+      connResult.className='conn-result show';
+      connResult.innerHTML=`<h4>⤓ נמשכו ${added} מועמדים ממסד „Candidates” ב-Notion ודורגו אוטומטית.</h4>`;
+      render(NOTION_CANDIDATES[0] && NOTION_CANDIDATES[0].name);
+      setTimeout(()=>pullBtn.textContent='⤓ סנכרן מועמדים מ-Notion', 2500);
+    }, 650);
+  });
+  pushBtn.addEventListener('click', ()=>{
+    const all = allCands();
+    pushBtn.textContent='…כותב ל-Notion';
+    setTimeout(()=>{
+      pushBtn.textContent='✓ נכתב ל-Notion';
+      const rows = all.map(c=>`<tr><td>${c.name}</td><td><b>${c.score}</b></td><td>${RECLBL[c.rec][0]}</td></tr>`).join('');
+      connResult.className='conn-result show';
+      connResult.innerHTML=`<h4>⤴ נכתבו ${all.length} מועמדים למסד „Candidates” ב-Notion (Score · Recommendation · Reasoning).</h4>
+        <table><tr><th>מועמד</th><th>ציון</th><th>המלצה</th></tr>${rows}</table>
+        <p style="margin-top:10px"><a href="#" onclick="return false">פתח את המסד ב-Notion ↗</a></p>`;
+      setTimeout(()=>pushBtn.textContent='⤴ כתוב דירוג בחזרה ל-Notion', 2500);
+    }, 700);
+  });
+
+  /* ---------- manual upload ---------- */
+  const drop=document.getElementById('drop'), fileInput=document.getElementById('file'),
+        cvtext=document.getElementById('cvtext'), cvname=document.getElementById('cvname');
+  drop.addEventListener('click', ()=>fileInput.click());
+  fileInput.addEventListener('change', e=>{ const f=e.target.files[0]; if(f) readFile(f); });
+  ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over');}));
+  ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over');}));
+  drop.addEventListener('drop', e=>{ const f=e.dataTransfer.files[0]; if(f) readFile(f); });
+  function readFile(f){ const r=new FileReader(); r.onload=()=>{ cvtext.value=r.result;
+    if(!cvname.value){ cvname.value=f.name.replace(/\.(txt|md|text)$/i,'').replace(/[-_]/g,' '); } }; r.readAsText(f); }
+  document.getElementById('check').addEventListener('click', ()=>{
+    const text=cvtext.value.trim();
+    if(!text){ cvtext.focus(); cvtext.style.borderColor='#ffb4a8'; setTimeout(()=>cvtext.style.borderColor='',1200); return; }
+    const cand=scoreCV(text, cvname.value, 'upload');
+    extra.push(cand); render(cand.name);
+  });
+  document.getElementById('clear').addEventListener('click', ()=>{ cvtext.value=''; cvname.value=''; });
+
+  render();
+</script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>סורק רגולציה · Whalo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap');
+  :root{ --bg:#19135f; --bg2:#0e0a2c; --hair:rgba(255,255,255,.12); --text:#fff;
+    --muted:rgba(255,255,255,.64); --faint:rgba(255,255,255,.42); --lime:#c6f24e; --blue:#6fbcfa;
+    --hi:#ff8f7a; --mid:#ffcf6b; --lo:#9be15d; --ease:cubic-bezier(.32,.72,0,1); --font:'Heebo',sans-serif; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{ font-family:var(--font); color:var(--text); min-height:100vh; line-height:1.55; padding:clamp(20px,4vw,52px);
+    background:radial-gradient(900px 600px at 85% -10%, rgba(30,156,245,.3), transparent 60%),
+      radial-gradient(700px 500px at 0% 110%, rgba(198,242,78,.1), transparent 55%), linear-gradient(180deg,var(--bg),var(--bg2)); }
+  .wrap{ max-width:900px; margin:0 auto; }
+  .eyebrow{ display:inline-block; padding:6px 14px; border-radius:999px; font-size:11px; font-weight:700; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--lime); background:rgba(198,242,78,.1); border:1px solid rgba(198,242,78,.3); }
+  h1{ font-size:clamp(26px,4vw,42px); font-weight:800; letter-spacing:-.02em; margin:14px 0 6px; }
+  .sub{ color:var(--muted); font-size:15px; }
+  .summary{ display:flex; gap:12px; flex-wrap:wrap; margin-top:16px; }
+  .stat{ flex:1; min-width:130px; border-radius:14px; padding:16px 18px; background:rgba(255,255,255,.05); border:1px solid var(--hair); }
+  .stat .n{ font-size:30px; font-weight:800; font-variant-numeric:tabular-nums; } .stat .l{ color:var(--faint); font-size:13px; }
+  .stat.hi .n{ color:var(--hi); }
+  .row{ display:flex; align-items:center; gap:12px; margin:26px 2px 14px; color:var(--faint); font-size:12px; letter-spacing:.12em; text-transform:uppercase; font-weight:700; } .row::after{ content:""; flex:1; height:1px; background:var(--hair); }
+  .gap{ position:relative; border-radius:18px; padding:22px; margin-bottom:14px; background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03));
+    border:1px solid var(--hair); box-shadow:0 26px 64px -46px rgba(0,0,0,.7), inset 0 1px 1px rgba(255,255,255,.1); border-right:4px solid var(--mid); }
+  .gap.hi{ border-right-color:var(--hi); } .gap.mid{ border-right-color:var(--mid); } .gap.lo{ border-right-color:var(--lo); }
+  .ghead{ display:flex; justify-content:space-between; align-items:center; gap:12px; }
+  .ghead h3{ font-size:18px; font-weight:800; }
+  .sev{ font-size:12px; font-weight:800; padding:4px 12px; border-radius:999px; white-space:nowrap; }
+  .sev.hi{ color:var(--hi); background:rgba(255,143,122,.14); border:1px solid rgba(255,143,122,.4); }
+  .sev.mid{ color:var(--mid); background:rgba(255,207,107,.14); border:1px solid rgba(255,207,107,.4); }
+  .sev.lo{ color:var(--lo); background:rgba(155,225,93,.14); border:1px solid rgba(155,225,93,.4); }
+  .gap .line{ margin-top:12px; font-size:14px; } .gap .line .k{ color:var(--faint); font-size:12px; display:block; margin-bottom:2px; }
+  .gap .action{ margin-top:12px; padding:11px 14px; border-radius:11px; background:rgba(198,242,78,.08); border:1px solid rgba(198,242,78,.25); font-size:14px; }
+  .gap .action b{ color:var(--lime); }
+  .disclaimer{ margin-top:18px; font-size:13px; color:var(--mid); background:rgba(255,207,107,.08); border:1px solid rgba(255,207,107,.3); padding:12px 15px; border-radius:12px; }
+  footer{ margin-top:22px; color:var(--faint); font-size:12px; text-align:center; line-height:1.7; } code{ background:rgba(255,255,255,.08); padding:2px 7px; border-radius:6px; font-size:12px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <span class="eyebrow">Finance & Ops · Whalo</span>
+    <h1>סורק רגולציה — דוח פערים</h1>
+    <p class="sub">השוואת „תקנות הגנת הצרכן במשחקים 2026” מול המדיניות הנוכחית של Whalo.</p>
+
+    <div class="summary">
+      <div class="stat"><div class="n" id="total">0</div><div class="l">פערים שזוהו</div></div>
+      <div class="stat hi"><div class="n" id="high">0</div><div class="l">בחומרה גבוהה</div></div>
+      <div class="stat"><div class="n">01.09.26</div><div class="l">כניסה לתוקף</div></div>
+    </div>
+
+    <div class="row">פערים — לפי חומרה</div>
+    <div id="list"></div>
+
+    <div class="disclaimer">⚖️ הכלי ממפה ומסמן בלבד — <b>אינו ייעוץ משפטי</b>. יש לאמת כל סעיף מול היועץ המשפטי.</div>
+    <footer>מקורות: <code>data/new-regulation.md</code> · <code>data/current-policy.md</code> · Skill: <code>regulation-scanner</code>. נתונים מדומים.</footer>
+  </div>
+<script>
+  const GAPS = [
+    { sev:"hi", title:"שקיפות הסתברויות בתיבות אקראיות", req:"חובה לפרסם את ה-odds לכל פריט בתיבה אקראית, לפני הרכישה ובמשחק (סעיף 3).",
+      cur:"סעיף 5 מציין שהתוכן אקראי — אך לא מפרסם הסתברויות.", action:"להוסיף תצוגת הסתברויות גלויה לכל תיבה, לפני רכישה ובתוך המשחק." },
+    { sev:"hi", title:"הגנה על קטינים — אישור הורי ומגבלת הוצאה", req:"אישור הורי מאומת לרכישות מתחת לגיל 18 + מגבלת הוצאה חודשית (סעיף 5).",
+      cur:"סעיף 7 מגדיר גיל 13+ בלבד, ללא אישור הורי או מגבלות.", action:"להוסיף זרימת אימות הורי ומגבלת הוצאה חודשית עם ברירת מחדל לקטינים." },
+    { sev:"hi", title:"זכות החזר תוך 14 יום", req:"חובה לאפשר החזר תוך 14 יום על רכישות וירטואליות שלא נוצלו (סעיף 12).",
+      cur:"סעיף 4 קובע שכל הרכישות סופיות — סתירה ישירה.", action:"לעדכן את מדיניות ההחזרים ולהוסיף מנגנון החזר תוך 14 יום לפריטים שלא נוצלו." },
+    { sev:"mid", title:"מחיקת נתונים עצמאית + שקיפות איסוף", req:"כפתור מחיקת נתונים עצמאי באפליקציה (תוך 30 יום) + פירוט מה נאסף ולמי מועבר (סעיף 8).",
+      cur:"סעיף 9 מאפשר פנייה במייל בלבד, ללא פירוט מלא.", action:"להוסיף כפתור „מחק את הנתונים שלי” באפליקציה ולפרט את רשימת הנתונים והצדדים השלישיים." },
+  ];
+  const SEVLBL = { hi:"חומרה גבוהה", mid:"חומרה בינונית", lo:"חומרה נמוכה" };
+  const list = document.getElementById('list');
+  GAPS.sort((a,b)=>({hi:0,mid:1,lo:2}[a.sev]-{hi:0,mid:1,lo:2}[b.sev]));
+  GAPS.forEach(g=>{
+    const el=document.createElement('div'); el.className='gap '+g.sev;
+    el.innerHTML=`<div class="ghead"><h3>${g.title}</h3><span class="sev ${g.sev}">${SEVLBL[g.sev]}</span></div>
+      <div class="line"><span class="k">📋 דרישת הרגולציה</span>${g.req}</div>
+      <div class="line"><span class="k">📄 במדיניות הנוכחית</span>${g.cur}</div>
+      <div class="action"><b>✔ מומלץ לעדכן:</b> ${g.action}</div>`;
+    list.appendChild(el);
+  });
+  document.getElementById('total').textContent = GAPS.length;
+  document.getElementById('high').textContent = GAPS.filter(g=>g.sev==='hi').length;
+</script>
+</body>
+</html>

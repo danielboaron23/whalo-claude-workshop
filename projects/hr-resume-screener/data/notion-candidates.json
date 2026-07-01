@@ -1,0 +1,24 @@
+{
+  "_comment": "ייצוא לדוגמה ממסד מועמדים ב-Notion (database: 'Candidates'). מדמה את מה שה-connector היה מושך.",
+  "database": "Candidates",
+  "records": [
+    {
+      "name": "אורי גל",
+      "stage": "New",
+      "source": "LinkedIn",
+      "cv": "Product Analyst בחברת gaming (free-to-play) 5 שנים. SQL מתקדם, ניסויי A/B על חבילות in-app, Mixpanel, Python לניתוח. עברית ואנגלית שוטף."
+    },
+    {
+      "name": "הדר נחום",
+      "stage": "Screening",
+      "source": "אתר דרושים",
+      "cv": "Junior Data Analyst שנתיים. SQL בסיסי, Excel, Google Analytics. ללא ניסיון gaming או בניסויים. עברית, אנגלית טובה."
+    },
+    {
+      "name": "עומר ביטון",
+      "stage": "New",
+      "source": "הפניה",
+      "cv": "Economy Designer במשחקי מובייל 6 שנים. תכנון מטבעות וכלכלת משחק, sinks/sources. SQL חלש (עובד עם אנליסטים). אנגלית שוטף."
+    }
+  ]
+}

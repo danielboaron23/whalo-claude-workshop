@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>מסנן קורות חיים · Whalo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap');
+  :root{
+    --bg:#19135f; --bg2:#0e0a2c; --hair:rgba(255,255,255,.12);
+    --text:#fff; --muted:rgba(255,255,255,.62); --faint:rgba(255,255,255,.4);
+    --lime:#c6f24e; --blue:#6fbcfa; --azure:#1e9cf5;
+    --ease:cubic-bezier(.32,.72,0,1); --font:'Heebo',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{ font-family:var(--font); color:var(--text); min-height:100vh; padding:clamp(20px,4vw,56px);
+    background:
+      radial-gradient(900px 600px at 85% -10%, rgba(30,156,245,.30), transparent 60%),
+      radial-gradient(700px 500px at 0% 110%, rgba(198,242,78,.10), transparent 55%),
+      linear-gradient(180deg, var(--bg), var(--bg2)); }
+  .wrap{ max-width:980px; margin:0 auto; }
+  .eyebrow{ display:inline-block; padding:6px 14px; border-radius:999px; font-size:11px; font-weight:700;
+    letter-spacing:.18em; text-transform:uppercase; color:var(--lime);
+    background:rgba(198,242,78,.10); border:1px solid rgba(198,242,78,.3); }
+  h1{ font-size:clamp(28px,4vw,44px); font-weight:800; letter-spacing:-.02em; margin:14px 0 8px; }
+  .sub{ color:var(--muted); font-size:clamp(14px,1.4vw,17px); }
+  .job{ margin-top:16px; padding:14px 18px; border-radius:14px; background:rgba(255,255,255,.05);
+    border:1px solid var(--hair); font-size:14px; color:var(--muted); } .job b{ color:var(--text); }
+
+  .connector{ margin-top:18px; border-radius:18px; padding:18px 20px;
+    background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); border:1px solid var(--hair); }
+  .conn-head{ display:flex; align-items:center; gap:13px; }
+  .conn-logo{ width:40px; height:40px; border-radius:11px; background:#fff; color:#0b1020;
+    display:flex; align-items:center; justify-content:center; font-weight:900; font-size:22px; flex-shrink:0; }
+  .conn-head .t b{ font-size:15px; } .conn-head .t span{ display:block; font-size:12px; color:var(--faint); margin-top:1px; }
+  .conn-status{ margin-inline-start:auto; font-size:12px; font-weight:700; padding:5px 12px; border-radius:999px; }
+  .conn-status.live{ color:var(--lime); background:rgba(198,242,78,.12); border:1px solid rgba(198,242,78,.3); }
+  .conn-status.demo{ color:var(--blue); background:rgba(30,156,245,.12); border:1px solid rgba(111,188,250,.3); }
+  .conn-actions{ display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  .conn-result{ display:none; margin-top:14px; padding:14px 16px; border-radius:12px;
+    background:rgba(198,242,78,.08); border:1px solid rgba(198,242,78,.3); font-size:13px; }
+  .conn-result.show{ display:block; } .conn-result.err{ background:rgba(255,120,100,.10); border-color:rgba(255,120,100,.4); }
+  .conn-result h4{ font-size:14px; margin-bottom:8px; color:var(--lime); }
+
+  .uploader{ margin-top:16px; border-radius:18px; padding:20px;
+    background:linear-gradient(180deg, rgba(198,242,78,.07), rgba(255,255,255,.02)); border:1px solid rgba(198,242,78,.25); }
+  .uploader h2{ font-size:18px; font-weight:800; margin-bottom:4px; }
+  .uploader p{ color:var(--muted); font-size:13px; margin-bottom:14px; }
+  .drop{ border:1.5px dashed rgba(198,242,78,.5); border-radius:14px; padding:18px; text-align:center;
+    color:var(--muted); font-size:14px; transition:.2s; cursor:pointer; } .drop.over{ background:rgba(198,242,78,.10); border-color:var(--lime); color:var(--text); } .drop b{ color:var(--lime); }
+  .fields{ display:grid; gap:10px; margin-top:12px; }
+  textarea,input[type=text]{ width:100%; font-family:var(--font); font-size:14px; color:var(--text);
+    background:rgba(0,0,0,.22); border:1px solid var(--hair); border-radius:12px; padding:12px 14px; }
+  textarea{ min-height:84px; resize:vertical; } textarea:focus,input:focus{ outline:none; border-color:var(--azure); }
+  textarea::placeholder,input::placeholder{ color:var(--faint); }
+  .uprow{ display:flex; gap:10px; align-items:center; margin-top:12px; flex-wrap:wrap; }
+  .btn{ font-family:var(--font); font-weight:800; font-size:14px; cursor:pointer; border:none; padding:11px 20px;
+    border-radius:12px; background:linear-gradient(180deg,var(--lime),#b6e63c); color:#0b1b2b;
+    box-shadow:0 12px 28px -12px rgba(198,242,78,.8); transition:transform .3s var(--ease); }
+  .btn:hover{ transform:translateY(-2px); } .btn:active{ transform:scale(.97); } .btn[disabled]{ opacity:.5; cursor:default; transform:none; }
+  .btn.ghost{ background:rgba(255,255,255,.06); color:var(--text); border:1px solid var(--hair); box-shadow:none; }
+  .note-mini{ color:var(--faint); font-size:12px; }
+
+  .row{ display:flex; align-items:center; gap:12px; margin:24px 2px 12px; color:var(--faint);
+    font-size:12px; letter-spacing:.12em; text-transform:uppercase; font-weight:700; } .row::after{ content:""; flex:1; height:1px; background:var(--hair); }
+
+  .card{ position:relative; border-radius:18px; padding:22px 24px; margin-bottom:14px;
+    background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03)); border:1px solid var(--hair);
+    box-shadow:0 30px 70px -44px rgba(0,0,0,.7), inset 0 1px 1px rgba(255,255,255,.12); cursor:pointer;
+    transition:transform .5s var(--ease), border-color .3s; }
+  .card:hover{ transform:translateY(-3px); }
+  .card.new{ border-color:rgba(198,242,78,.6); box-shadow:0 0 0 3px rgba(198,242,78,.18), 0 30px 70px -44px rgba(0,0,0,.7); }
+  .card .badge-new{ position:absolute; top:-10px; right:18px; color:#0b1b2b; background:var(--lime);
+    font-size:11px; font-weight:800; padding:3px 10px; border-radius:999px; } .card .badge-new.notion{ background:#fff; }
+  .chead{ display:grid; grid-template-columns:44px 1fr auto; gap:16px; align-items:center; }
+  .rank{ width:44px; height:44px; border-radius:13px; display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:18px; background:rgba(255,255,255,.06); border:1px solid var(--hair); }
+  .card.top .rank{ background:linear-gradient(180deg,var(--lime),#aada3c); color:#0b1b2b; border-color:var(--lime); }
+  .who .name{ font-size:19px; font-weight:700; }
+  .who .meta{ font-size:13px; color:var(--faint); margin-top:2px; }
+  .src{ font-size:11px; padding:2px 8px; border-radius:999px; border:1px solid var(--hair); color:var(--faint); margin-inline-start:6px; }
+  .score{ text-align:left; min-width:130px; } .score .num{ font-size:26px; font-weight:800; font-variant-numeric:tabular-nums; }
+  .score .num small{ font-size:13px; color:var(--faint); font-weight:600; }
+  .bar{ height:7px; border-radius:99px; background:rgba(255,255,255,.10); margin-top:6px; overflow:hidden; }
+  .bar i{ display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,var(--azure),var(--lime)); transition:width .6s var(--ease); }
+  .rec{ display:inline-block; margin-top:3px; padding:3px 11px; border-radius:999px; font-size:12px; font-weight:700; }
+  .rec.yes{ background:rgba(198,242,78,.16); color:var(--lime); border:1px solid rgba(198,242,78,.4); }
+  .rec.maybe{ background:rgba(30,156,245,.16); color:var(--blue); border:1px solid rgba(111,188,250,.4); }
+  .rec.no{ background:rgba(255,255,255,.06); color:var(--faint); border:1px solid var(--hair); }
+  .detail{ max-height:0; overflow:hidden; transition:max-height .5s var(--ease); } .card.open .detail{ max-height:360px; }
+  .detail-inner{ padding-top:18px; margin-top:18px; border-top:1px solid var(--hair); }
+  .reason{ color:var(--muted); font-size:14px; line-height:1.6; margin-bottom:14px; }
+  .tags{ display:flex; flex-wrap:wrap; gap:8px; }
+  .tag{ font-size:12.5px; padding:5px 11px; border-radius:999px; border:1px solid var(--hair); }
+  .tag.up{ color:var(--lime); background:rgba(198,242,78,.08); } .tag.down{ color:#ffb4a8; background:rgba(255,120,100,.08); }
+  .hint{ text-align:center; color:var(--faint); font-size:12px; margin-top:18px; } .empty{ text-align:center; color:var(--faint); padding:30px; }
+  footer{ margin-top:26px; color:var(--faint); font-size:12px; text-align:center; line-height:1.7; }
+  code{ background:rgba(255,255,255,.08); padding:2px 7px; border-radius:6px; font-size:12px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <span class="eyebrow">HR · Whalo</span>
+      <h1>מסנן קורות חיים</h1>
+      <p class="sub">אפליקציה אמיתית · backend + חיבור חי ל-Notion</p>
+      <div class="job">📋 משרה: <b>Game Economy Analyst</b> · rubric: דרישות חובה 40 · תחום 25 · טכני 20 · סניוריטי 10 · שפה 5.</div>
+    </header>
+
+    <div class="connector">
+      <div class="conn-head">
+        <span class="conn-logo">N</span>
+        <div class="t"><b>Notion · מסד מועמדים</b><span id="connSub">בודק חיבור…</span></div>
+        <span class="conn-status demo" id="connStatus">…</span>
+      </div>
+      <div class="conn-actions">
+        <button class="btn ghost" id="pullBtn">⤓ טען מועמדים</button>
+        <button class="btn" id="pushBtn">⤴ כתוב דירוג ל-Notion</button>
+      </div>
+      <div class="conn-result" id="connResult"></div>
+    </div>
+
+    <div class="uploader">
+      <h2>⬆️ הוסיפו מועמד/ת ידנית</h2>
+      <p>גררו קובץ <b>.txt / .md</b> או הדביקו טקסט — הבדיקה רצה בשרת (אותו rubric).</p>
+      <div class="drop" id="drop">📄 <b>גררו קובץ לכאן</b> או לחצו לבחירה
+        <input type="file" id="file" accept=".txt,.md,.text" hidden></div>
+      <div class="fields">
+        <input type="text" id="cvname" placeholder="שם המועמד/ת (לא חובה)">
+        <textarea id="cvtext" placeholder="…או הדביקו כאן את טקסט קורות החיים"></textarea>
+      </div>
+      <div class="uprow">
+        <button class="btn" id="check">בדוק ודרג ▸</button>
+        <button class="btn ghost" id="clear">נקה</button>
+      </div>
+    </div>
+
+    <div class="row">דירוג מועמדים</div>
+    <div id="list"><div class="empty">טוען…</div></div>
+    <p class="hint">👆 לחצו על מועמד לפתיחת הנימוק המלא</p>
+
+    <footer>אפליקציה אמיתית: <code>server.js</code> מדבר ישירות מול ה-API של Notion (הטוקן נשאר בשרת).
+      ללא הגדרת token היא רצה במצב דמו. כל הנתונים בדויים.</footer>
+  </div>
+
+<script>
+  const RECLBL = { yes:["לראיון","yes"], maybe:["אולי","maybe"], no:["לא כרגע","no"] };
+  let candidates = [];
+  const list = document.getElementById('list'), connResult = document.getElementById('connResult');
+  const api = (p,o)=>fetch(p,o).then(r=>r.json());
+
+  function render(highlightName){
+    candidates.sort((a,b)=>b.score-a.score);
+    if(!candidates.length){ list.innerHTML='<div class="empty">אין מועמדים עדיין — לחצו „טען מועמדים” או הוסיפו ידנית.</div>'; return; }
+    list.innerHTML='';
+    candidates.forEach((c,idx)=>{
+      const [lbl,cls]=RECLBL[c.rec]; const el=document.createElement('div');
+      el.className='card'+(idx===0?' top':'')+(c.isNew?' new':'');
+      const badge=c.isNew?`<span class="badge-new ${c.source==='notion'?'notion':''}">${c.source==='notion'?'↳ Notion':'חדש'}</span>`:'';
+      const srcChip=c.source==='notion'?'<span class="src">Notion</span>':(c.source==='upload'?'<span class="src">הועלה</span>':'');
+      el.innerHTML=`${badge}
+        <div class="chead">
+          <div class="rank">${idx+1}</div>
+          <div class="who"><div class="name">${c.name}${srcChip}</div>
+            <div class="meta">${c.exp?c.exp+' שנות ניסיון':'ניסיון לא ידוע'} · <span class="rec ${cls}">${lbl}</span></div></div>
+          <div class="score"><div class="num">${c.score}<small> / 100</small></div><div class="bar"><i style="width:${c.score}%"></i></div></div>
+        </div>
+        <div class="detail"><div class="detail-inner"><div class="reason">${c.reason}</div>
+          <div class="tags">${c.up.map(x=>`<span class="tag up">✓ ${x}</span>`).join('')}${c.down.map(x=>`<span class="tag down">✕ ${x}</span>`).join('')}</div>
+        </div></div>`;
+      el.addEventListener('click',()=>el.classList.toggle('open'));
+      if(c.name===highlightName){ el.classList.add('open'); setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'center'}),60); }
+      list.appendChild(el);
+    });
+    if(!highlightName) list.firstChild.classList.add('open');
+  }
+  function showResult(html,isErr){ connResult.className='conn-result show'+(isErr?' err':''); connResult.innerHTML=html; }
+
+  async function loadHealth(){
+    try{ const h=await api('/api/health');
+      const live=h.mode==='notion';
+      document.getElementById('connStatus').className='conn-status '+(live?'live':'demo');
+      document.getElementById('connStatus').textContent=live?'● מחובר ל-Notion':'● מצב דמו';
+      document.getElementById('connSub').textContent=live?('מחובר למסד '+h.database):'לא הוגדר token — נתוני דמו מקומיים';
+    }catch(e){}
+  }
+  async function pull(highlight){
+    const b=document.getElementById('pullBtn'); b.disabled=true; b.textContent='…טוען';
+    try{ const r=await api('/api/candidates');
+      candidates=r.candidates.map(c=>({...c,isNew:highlight?true:false})); render();
+      if(highlight) showResult(`<h4>⤓ נטענו ${r.candidates.length} מועמדים ${r.mode==='notion'?'מ-Notion':'(דמו)'} ודורגו אוטומטית.</h4>`);
+    }catch(e){ showResult('שגיאה בטעינה: '+e.message,true); }
+    b.disabled=false; b.textContent='⤓ טען מועמדים';
+  }
+  document.getElementById('pullBtn').addEventListener('click',()=>pull(true));
+  document.getElementById('pushBtn').addEventListener('click',async()=>{
+    const b=document.getElementById('pushBtn'); b.disabled=true; b.textContent='…כותב';
+    try{ const r=await api('/api/notion/push',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({candidates})});
+      if(r.error) showResult('שגיאה בכתיבה: '+r.error,true);
+      else if(r.mode==='notion') showResult(`<h4>⤴ נכתבו ${r.written} מועמדים בחזרה ל-Notion (Score · Recommendation · Reasoning).</h4>`);
+      else showResult(`<h4>⤴ מצב דמו: ${r.written} מועמדים היו נכתבים.</h4><div style="color:var(--muted)">${r.note}</div>`);
+    }catch(e){ showResult('שגיאה: '+e.message,true); }
+    b.disabled=false; b.textContent='⤴ כתוב דירוג ל-Notion';
+  });
+
+  // manual upload → scored by the server
+  const drop=document.getElementById('drop'),fileInput=document.getElementById('file'),
+        cvtext=document.getElementById('cvtext'),cvname=document.getElementById('cvname');
+  drop.addEventListener('click',()=>fileInput.click());
+  fileInput.addEventListener('change',e=>{const f=e.target.files[0];if(f)readFile(f);});
+  ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over');}));
+  ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over');}));
+  drop.addEventListener('drop',e=>{const f=e.dataTransfer.files[0];if(f)readFile(f);});
+  function readFile(f){const r=new FileReader();r.onload=()=>{cvtext.value=r.result;if(!cvname.value)cvname.value=f.name.replace(/\.(txt|md|text)$/i,'').replace(/[-_]/g,' ');};r.readAsText(f);}
+  document.getElementById('check').addEventListener('click',async()=>{
+    const text=cvtext.value.trim(); if(!text){cvtext.focus();return;}
+    const c=await api('/api/score',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,name:cvname.value})});
+    c.isNew=true; candidates.push(c); render(c.name);
+  });
+  document.getElementById('clear').addEventListener('click',()=>{cvtext.value='';cvname.value='';});
+
+  loadHealth(); pull(false);
+</script>
+</body>
+</html>

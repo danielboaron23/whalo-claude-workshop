@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>בריף בוקר · Whalo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap');
+  :root{ --bg:#19135f; --bg2:#0e0a2c; --hair:rgba(255,255,255,.12); --text:#fff;
+    --muted:rgba(255,255,255,.64); --faint:rgba(255,255,255,.42); --lime:#c6f24e; --blue:#6fbcfa; --azure:#1e9cf5;
+    --red:#ff8f7a; --amber:#ffcf6b; --ease:cubic-bezier(.32,.72,0,1); --font:'Heebo',sans-serif; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{ font-family:var(--font); color:var(--text); min-height:100vh; line-height:1.55; padding:clamp(20px,4vw,52px);
+    background:radial-gradient(900px 600px at 85% -10%, rgba(30,156,245,.3), transparent 60%),
+      radial-gradient(700px 500px at 0% 110%, rgba(198,242,78,.1), transparent 55%), linear-gradient(180deg,var(--bg),var(--bg2)); }
+  .wrap{ max-width:860px; margin:0 auto; }
+  .eyebrow{ display:inline-block; padding:6px 14px; border-radius:999px; font-size:11px; font-weight:700; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--lime); background:rgba(198,242,78,.1); border:1px solid rgba(198,242,78,.3); }
+  h1{ font-size:clamp(26px,4vw,42px); font-weight:800; letter-spacing:-.02em; margin:14px 0 4px; }
+  .sub{ color:var(--muted); font-size:15px; }
+  .meta{ margin-top:8px; color:var(--faint); font-size:13px; }
+  .src{ display:inline-flex; gap:6px; align-items:center; font-size:12px; color:var(--blue); background:rgba(30,156,245,.12);
+    border:1px solid rgba(111,188,250,.3); padding:3px 10px; border-radius:999px; margin-inline-end:6px; }
+  .sec{ position:relative; border-radius:18px; padding:20px 22px; margin-top:16px;
+    background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03)); border:1px solid var(--hair);
+    box-shadow:0 26px 64px -46px rgba(0,0,0,.7), inset 0 1px 1px rgba(255,255,255,.1); }
+  .sec h2{ font-size:16px; font-weight:800; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+  .item{ display:flex; gap:11px; padding:9px 0; border-top:1px solid rgba(255,255,255,.07); font-size:14.5px; }
+  .item:first-of-type{ border-top:none; }
+  .item .dot{ flex-shrink:0; width:8px; height:8px; border-radius:50%; margin-top:8px; background:var(--lime); }
+  .item.p .dot{ background:var(--red); } .item.b .dot{ background:var(--amber); }
+  .item .who{ color:var(--faint); font-size:12.5px; }
+  .pill-red{ color:var(--red); font-weight:700; } .tag{ color:var(--faint); }
+  footer{ margin-top:26px; color:var(--faint); font-size:12px; text-align:center; line-height:1.7; }
+  code{ background:rgba(255,255,255,.08); padding:2px 7px; border-radius:6px; font-size:12px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <span class="eyebrow">Product · Whalo</span>
+    <h1>בריף בוקר ☕</h1>
+    <p class="sub">התמונה של היום — נאסף מ-Slack ו-Notion, מסונן למה שחשוב.</p>
+    <div class="meta"><span class="src">💬 Slack · #reef-rumble-product</span><span class="src">📝 Notion · Sprint 14</span></div>
+
+    <div class="sec">
+      <h2>🔴 הכי חשוב היום</h2>
+      <div class="item p"><span class="dot"></span><div><b>באג קריטי במסך הליגות (Android 14)</b> — ~6% מהמשתמשים, <span class="pill-red">REEF-2231</span>. צריך החלטה על hotfix. <span class="who">· דנה (QA)</span></div></div>
+      <div class="item p"><span class="dot"></span><div><b>אישור store copy חדש</b> — הקמפיין בטיקטוק יוצא מחר, רן צריך אישור היום. <span class="who">· Marketing</span></div></div>
+      <div class="item p"><span class="dot"></span><div><b>ירידת D1 retention ב-2%</b> מאז העדכון — לבדוק את ה-onboarding (יעד הספרינט). <span class="who">· טל (Data)</span></div></div>
+    </div>
+
+    <div class="sec">
+      <h2>🚧 חסמים</h2>
+      <div class="item b"><span class="dot"></span><div>מוקאפים של מסך החנות מוכנים ב-Figma — <b>ממתינים לאישור מוצר</b> לפני פיתוח.</div></div>
+      <div class="item b"><span class="dot"></span><div>החלטת clans (לדחות לספרינט הבא?) — <b>פתוחה</b>.</div></div>
+      <div class="item b"><span class="dot"></span><div>תמחור חבילת starter — ממתין לתוצאות A/B מ-Monetization.</div></div>
+    </div>
+
+    <div class="sec">
+      <h2>📊 עדכונים</h2>
+      <div class="item"><span class="dot"></span><div>שרת matchmaking חדש ב-prod — latency ירד ב-30% (לעקוב היום). <span class="who">· יוסי</span></div></div>
+    </div>
+
+    <div class="sec">
+      <h2>✅ משימות לפעולה</h2>
+      <div class="item"><span class="dot"></span><div>להחליט על hotfix ל-REEF-2231 <span class="tag">· מוצר</span></div></div>
+      <div class="item"><span class="dot"></span><div>לאשר store copy לרן <span class="tag">· מוצר</span></div></div>
+      <div class="item"><span class="dot"></span><div>לאשר מוקאפים של מסך החנות <span class="tag">· מוצר</span></div></div>
+      <div class="item"><span class="dot"></span><div>לבדוק נתוני onboarding מול טל <span class="tag">· מוצר + Data</span></div></div>
+    </div>
+
+    <div class="sec">
+      <h2>📅 היום ביומן</h2>
+      <div class="item"><span class="dot"></span><div><b>11:00</b> — סנכרון Backend על matchmaking</div></div>
+      <div class="item"><span class="dot"></span><div><b>14:00</b> — review עיצוב מסך החנות</div></div>
+      <div class="item"><span class="dot"></span><div>⏰ דדליין roadmap רבעוני — יום חמישי</div></div>
+    </div>
+
+    <footer>מקורות: <code>data/slack-export.json</code> · <code>data/notion-notes.md</code> · Skill: <code>daily-brief</code>.<br>
+      בעבודה אמיתית: Claude מושך חי מ-Slack + Notion דרך ה-connectors, ואפשר לתזמן שירוץ כל בוקר אוטומטית.</footer>
+  </div>
+</body>
+</html>

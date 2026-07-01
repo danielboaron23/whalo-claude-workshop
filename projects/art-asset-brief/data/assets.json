@@ -1,0 +1,14 @@
+{
+  "_comment": "קטלוג נכסים מדומה למשחק Reef Rumble. מדמה מה שיושב ב-Drive/תיקיית הנכסים.",
+  "project": "Reef Rumble",
+  "assets": [
+    { "name": "Pingo — Mascot", "type": "דמות", "tags": ["mascot","hero","penguin"], "status": "סופי" },
+    { "name": "Crab — Enemy", "type": "דמות", "tags": ["enemy","character"], "status": "סופי" },
+    { "name": "Coral Reef BG", "type": "רקע", "tags": ["background","environment","ocean"], "status": "סופי" },
+    { "name": "Deep Sea BG", "type": "רקע", "tags": ["background","environment","dark"], "status": "בעבודה" },
+    { "name": "Coin Icon", "type": "UI", "tags": ["icon","currency","ui"], "status": "סופי" },
+    { "name": "League Badge", "type": "UI", "tags": ["badge","reward","ui"], "status": "סופי" },
+    { "name": "Bubble Burst", "type": "אפקט", "tags": ["vfx","effect"], "status": "בעבודה" },
+    { "name": "Treasure Chest", "type": "פרופ", "tags": ["prop","reward"], "status": "סופי" }
+  ]
+}

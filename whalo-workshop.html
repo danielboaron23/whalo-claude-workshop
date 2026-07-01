@@ -1,0 +1,2118 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Whalo · סדנת Claude Code</title>
+<link rel="stylesheet" href="whalo-theme.css" />
+<style>
+/* ============================================================================
+   WHALO WORKSHOP — high-end visual layer  ·  "Ethereal Glass" archetype
+   Layered on top of whalo-theme.css (palette + layout templates).
+   Principles: double-bezel cards · macro whitespace · custom spring easing ·
+   staggered enter-reveals · haptic micro-interactions · soft diffused light.
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+
+:root{
+  --font-head:'Heebo','Plus Jakarta Sans',sans-serif;
+  --font-body:'Heebo',sans-serif;
+  --ease:cubic-bezier(.32,.72,0,1);     /* fluid spring */
+  --ease-soft:cubic-bezier(.22,1,.36,1);
+  --glass:rgba(255,255,255,.055);
+  --hair:rgba(255,255,255,.12);
+}
+:root.light{ --glass:rgba(21,17,46,.035); --hair:rgba(21,17,46,.10); }
+
+/* ---------- ambient background: drifting mesh orbs + film grain ---------- */
+.fx-orbs,.fx-grain{ position:fixed; inset:0; z-index:0; pointer-events:none; }
+.fx-orbs{ overflow:hidden; }
+.fx-orbs::before,.fx-orbs::after{
+  content:""; position:absolute; border-radius:50%; filter:blur(80px); opacity:.55;
+  will-change:transform;
+}
+.fx-orbs::before{ width:46vw; height:46vw; top:-14vw; right:-8vw;
+  background:radial-gradient(circle at 40% 40%, rgba(46,58,230,.55), transparent 65%);
+  animation:drift1 26s var(--ease-soft) infinite alternate; }
+.fx-orbs::after{ width:40vw; height:40vw; bottom:-16vw; left:-10vw;
+  background:radial-gradient(circle at 50% 50%, rgba(30,156,245,.40), transparent 65%);
+  animation:drift2 32s var(--ease-soft) infinite alternate; }
+:root.light .fx-orbs::before{ opacity:.30; }
+:root.light .fx-orbs::after{ opacity:.26; }
+@keyframes drift1{ to{ transform:translate3d(-6vw,5vw,0) scale(1.12); } }
+@keyframes drift2{ to{ transform:translate3d(5vw,-4vw,0) scale(1.08); } }
+.fx-grain{ z-index:51; opacity:.05; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+@media (prefers-reduced-motion: reduce){ .fx-orbs::before,.fx-orbs::after{ animation:none; } }
+
+.deck{ z-index:1; }
+
+/* soft ambient glow behind the mascot — also a graceful fallback so the stage
+   never reads as an empty white hole if the 3D model fails to load */
+.pingo-stage::before{ content:""; position:absolute; inset:6%; z-index:-1;
+  border-radius:50%; filter:blur(30px);
+  background:radial-gradient(circle at 50% 46%, rgba(30,156,245,.22), transparent 62%); }
+:root.light .pingo-stage::before{ background:radial-gradient(circle at 50% 46%, rgba(30,156,245,.14), transparent 62%); }
+
+/* ---------- typography: premium scale ---------------------------------- */
+h1.title{ font-weight:800; letter-spacing:-.035em; line-height:1.0; }
+h2.headline{ font-weight:800; letter-spacing:-.025em; }
+.lead{ font-weight:400; color:var(--muted); max-width:48ch; }
+.title .accent,.headline .accent{
+  background:linear-gradient(105deg,var(--lime) 0%, var(--blue-soft) 90%);
+  -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+}
+:root.light .title .accent,:root.light .headline .accent{
+  background:linear-gradient(105deg,#4f7300 0%, #0f82dc 90%);
+  -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+}
+
+/* ---------- eyebrow → micro pill tag ----------------------------------- */
+.eyebrow{
+  display:inline-block; margin-bottom:20px; padding:6px 14px; border-radius:999px;
+  font-family:var(--font-head); font-weight:700; font-size:11px;
+  letter-spacing:.2em; text-transform:uppercase; color:var(--lime-ink);
+  background:rgba(198,242,78,.10); border:1px solid rgba(198,242,78,.30);
+}
+.layout-title .eyebrow,.layout-closing .eyebrow{ align-self:center; }
+
+/* ---------- pills: refined glass --------------------------------------- */
+.pill{
+  background:linear-gradient(180deg, rgba(30,156,245,.20), rgba(30,156,245,.10));
+  border:1px solid rgba(111,188,250,.40); color:var(--blue-soft);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.10);
+  backdrop-filter:blur(6px);
+}
+
+/* ---------- cards: double-bezel (machined-hardware) -------------------- */
+.card{
+  position:relative; border-radius:1.35rem; padding:30px;
+  background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
+  border:1px solid var(--hair);
+  box-shadow:0 36px 90px -46px rgba(0,0,0,.75), inset 0 1px 1px rgba(255,255,255,.14);
+  backdrop-filter:blur(10px);
+  transition:transform .6s var(--ease), box-shadow .6s var(--ease);
+}
+:root.light .card{ background:linear-gradient(180deg,#fff,#fbfcff);
+  box-shadow:0 30px 70px -42px rgba(21,17,46,.30), inset 0 1px 1px rgba(255,255,255,.9); }
+.card::before{                         /* outer tray / concentric bezel */
+  content:""; position:absolute; inset:-8px; z-index:-1; border-radius:1.85rem;
+  background:var(--glass); border:1px solid var(--hair);
+}
+.card h3{ font-family:var(--font-head); letter-spacing:-.01em; }
+.cols .card:hover{ transform:translateY(-4px); }
+
+/* ---------- bullets: glowing squircle markers -------------------------- */
+.bullets li::before{ border-radius:5px; box-shadow:0 0 16px rgba(198,242,78,.6); }
+
+/* ---------- practice "steps" list -------------------------------------- */
+.steps{ list-style:none; display:grid; gap:15px; margin-top:8px; counter-reset:step; max-width:48ch; }
+.steps li{ position:relative; padding-right:50px; font-size:clamp(15px,1.2vw,18px);
+  line-height:1.55; color:var(--text); }
+.steps li::before{ counter-increment:step; content:counter(step);
+  position:absolute; right:0; top:-3px; width:32px; height:32px; border-radius:10px;
+  background:linear-gradient(180deg,var(--lime),#aada3c); color:#0b1b2b;
+  font-family:var(--font-head); font-weight:800; font-size:15px;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 8px 20px -8px rgba(198,242,78,.7), inset 0 1px 1px rgba(255,255,255,.5); }
+.practice .pill{
+  background:linear-gradient(180deg,var(--lime),#b6e63c); border-color:var(--lime);
+  color:#0b1b2b; font-weight:800; box-shadow:0 10px 26px -12px rgba(198,242,78,.8); }
+.note{ margin-top:16px; font-size:13.5px; line-height:1.5; color:var(--faint); max-width:46ch; }
+
+/* connectors chip-wrap */
+.chipwrap{ display:flex; flex-wrap:wrap; gap:12px; margin-top:10px; max-width:64ch; }
+
+/* ---------- RTL chrome placement -------------------------------------- */
+.brandmark{ left:auto; right:30px; }
+.counter{ left:auto; right:30px; }
+.nav{ right:auto; left:28px; }
+.theme-toggle{ right:auto; left:28px; }
+.bullets li{ padding-left:0; padding-right:30px; }
+.bullets li::before{ left:auto; right:0; }
+.layout-section .index{ transform:scaleX(-1); }
+/* two-col mascot → top-left so it clears the (now top-right) RTL logo */
+.layout-two-col .pingo-stage{ right:auto; left:clamp(24px,4vw,72px); }
+
+/* ---------- chrome: premium refinements ------------------------------- */
+.progress{ height:3px; background:linear-gradient(90deg,var(--lime),var(--blue));
+  box-shadow:0 0 16px rgba(198,242,78,.7); transition:width .6s var(--ease); }
+.nav button{
+  border-radius:16px; border:1px solid var(--hair); background:var(--glass);
+  backdrop-filter:blur(12px); transition:transform .4s var(--ease), background .3s ease;
+}
+.nav button:hover{ background:var(--blue); transform:translateY(-3px) scale(1.04); }
+.nav button:active{ transform:scale(.94); }
+.theme-toggle{ border-radius:999px; border:1px solid var(--hair); background:var(--glass);
+  backdrop-filter:blur(12px); transition:transform .3s var(--ease), background .25s ease; }
+.theme-toggle:hover{ transform:translateY(-1px); }
+.dots i.on{ background:var(--lime); width:24px; box-shadow:0 0 12px rgba(198,242,78,.7); }
+.counter{ font-variant-numeric:tabular-nums; direction:ltr; }
+
+/* ---------- ENTER CHOREOGRAPHY (staggered fade-up + de-blur) ----------- */
+.slide .anim{
+  opacity:0; transform:translateY(30px); filter:blur(7px);
+  transition:opacity .85s var(--ease), transform .85s var(--ease), filter .85s var(--ease);
+}
+.slide.is-in .anim{ opacity:1; transform:none; filter:none; }
+/* safety net: guarantees content is visible even if the transition is throttled
+   (background tab / reduced-motion / odd browser) — never a blank slide */
+.slide .anim.shown{ opacity:1 !important; transform:none !important; filter:none !important; transition:none !important; }
+@media (prefers-reduced-motion: reduce){
+  .slide .anim{ opacity:1; transform:none; filter:none; transition:none; }
+}
+
+/* breathing room on wide screens — tight vertical so content fills the stage */
+@media (min-width:1100px){
+  .slide{ padding:clamp(34px,3.4vw,60px) clamp(44px,4.4vw,80px); }
+}
+
+/* ============================================================================
+   "ABOUT ME" SLIDE (Design AI brand) — ported 1:1 from d2c-conference/index-v4
+   Self-contained dark island: ElmsSans, lime #7bed52, LTR inside the RTL deck.
+   ========================================================================== */
+@font-face{
+  font-family:'ElmsSans';
+  src:url('fonts/ElmsSans-VariableFont_wght.ttf') format('truetype-variations'),
+      url('fonts/ElmsSans-VariableFont_wght.ttf') format('truetype');
+  font-weight:100 900; font-style:normal; font-display:swap;
+}
+@font-face{
+  font-family:'ElmsSans';
+  src:url('fonts/ElmsSans-Italic-VariableFont_wght.ttf') format('truetype-variations'),
+      url('fonts/ElmsSans-Italic-VariableFont_wght.ttf') format('truetype');
+  font-weight:100 900; font-style:italic; font-display:swap;
+}
+
+/* full-bleed dark slide — overrides the deck's default padding & RTL flow */
+.slide.whoami-slide{ padding:0; direction:ltr; text-align:left; overflow:hidden; }
+.whoami-slide .dark-bg{ position:absolute; inset:0; z-index:0;
+  background:linear-gradient(128deg, #000 38.5%, #06150f 97.6%); }
+
+.whoami-photo{ position:absolute; top:0; right:0; width:45%; height:100%; z-index:1;
+  display:flex; align-items:flex-end; justify-content:center; }
+.whoami-photo img{ width:auto; height:92%; max-width:100%; object-fit:contain; }
+.whoami-photo-corner{ position:absolute; top:24px; left:-12px; width:24px; height:24px;
+  border-left:2px solid rgba(123,237,82,.3); border-top:2px solid rgba(123,237,82,.3);
+  border-top-left-radius:8px; z-index:2; }
+
+.whoami-text{ position:absolute; left:clamp(40px,8vw,120px); top:50%; transform:translateY(-50%);
+  display:flex; flex-direction:column; max-width:720px; z-index:3; }
+.whoami-brand{ display:flex; align-items:center; margin-bottom:22px; }
+.whoami-brand img{ height:32px; width:auto; display:block; }
+.whoami-name{ font-family:'ElmsSans',sans-serif; font-weight:700; font-size:clamp(48px,6vw,76px);
+  color:#fff; letter-spacing:-2.5px; line-height:1.05; margin-bottom:28px; }
+.whoami-bio{ font-family:'ElmsSans',sans-serif; font-weight:400; font-size:clamp(18px,1.6vw,22px);
+  color:rgba(255,255,255,.85); line-height:1.65; margin-bottom:36px; }
+.whoami-stats{ display:flex; gap:14px; margin-bottom:28px; flex-wrap:wrap; }
+.whoami-stat{ padding:16px 24px; border:1px solid rgba(255,255,255,.08); border-radius:10px;
+  background:rgba(255,255,255,.02); min-width:150px; }
+.whoami-stat-num{ font-family:'ElmsSans',sans-serif; font-weight:600; font-size:32px; color:#fff; letter-spacing:-.5px; }
+.whoami-stat-label{ font-family:'ElmsSans',sans-serif; font-weight:500; font-size:12px;
+  color:rgba(255,255,255,.55); letter-spacing:1.5px; text-transform:uppercase; margin-top:4px; }
+.whoami-marquee-wrap{ width:min(1056px,82vw); max-width:none; padding-top:18px; margin-top:4px;
+  border-top:1px solid rgba(255,255,255,.08); }
+.whoami-marquee-label{ font-family:'ElmsSans',sans-serif; font-size:12px; font-weight:500;
+  color:rgba(255,255,255,.5); text-transform:uppercase; letter-spacing:3px; margin-bottom:14px; }
+.whoami-marquee{ overflow:hidden; width:100%;
+  -webkit-mask-image:linear-gradient(to right,transparent,black 4%,black 96%,transparent);
+  mask-image:linear-gradient(to right,transparent,black 4%,black 96%,transparent); }
+.whoami-marquee-track{ display:flex; align-items:center; width:max-content;
+  animation:whoami-scroll 60s linear infinite; opacity:.9; }
+@keyframes whoami-scroll{ 0%{ transform:translateX(0);} 100%{ transform:translateX(-50%);} }
+.whoami-marquee-item{ flex-shrink:0; padding:0 22px; display:flex; align-items:center; }
+.whoami-marquee-item img{ height:26px; width:auto; object-fit:contain; display:block; filter:brightness(0) invert(1); }
+@media (prefers-reduced-motion:reduce){ .whoami-marquee-track{ animation:none; } }
+
+/* ============================================================================
+   "WAYS TO WORK" SLIDES — one per mode (Chat · Cowork · Code)
+   Each uses .layout-split with a glass "mock" visual in the deck's language.
+   ========================================================================== */
+.mode-visual{ flex:1 1 54%; max-width:760px; align-self:center;
+  display:flex; align-items:center; justify-content:center; }
+.mock{ width:100%; border-radius:18px; border:1px solid var(--hair); overflow:hidden;
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.025));
+  box-shadow:0 44px 100px -54px rgba(0,0,0,.85), inset 0 1px 1px rgba(255,255,255,.10); }
+/* big, prominent app-window mocks so the WAY slides' visual is the hero */
+.mode-visual .mock{ min-height:min(66vh,560px); display:flex; flex-direction:column; }
+.mode-visual .mock .mock-bar{ flex:0 0 auto; }
+/* give the visual more room than the copy on the WAY slides */
+.layout-split:has(.mode-visual) .copy{ flex:1 1 40%; max-width:560px; }
+/* scale mock internals up to match the bigger window */
+.mode-visual .cl-convo{ flex:1 1 auto; min-height:0; }
+.mode-visual .cl-convo .cm-bubble{ font-size:clamp(14px,1.3vw,17.5px); padding:13px 17px; }
+.mode-visual .cl-field{ font-size:clamp(14px,1.3vw,17px); min-height:24px; }
+.mode-visual .cl-model{ font-size:clamp(12.5px,1.15vw,14.5px); }
+.mode-visual .termmock-body{ flex:1 1 auto; font-size:clamp(14px,1.35vw,17.5px); line-height:1.9;
+  display:flex; flex-direction:column; justify-content:center; gap:2px; }
+.mode-visual .cw-doc{ flex:1 1 auto; align-content:center; }
+.mode-visual .cw-ask-text{ font-size:clamp(14px,1.3vw,17px); }
+.mode-visual .cw-copy{ font-size:clamp(15px,1.4vw,19px); }
+.mode-visual .cw-tag{ font-size:clamp(12px,1.15vw,14px); }
+.mode-visual .mock-bar .ttl{ font-size:clamp(12px,1.1vw,14px); }
+.mock-bar{ display:flex; align-items:center; gap:7px; padding:12px 16px; direction:ltr;
+  border-bottom:1px solid var(--hair); background:rgba(0,0,0,.20); font-size:12px; color:var(--faint); }
+.mock-bar i{ width:10px; height:10px; border-radius:50%; background:rgba(255,255,255,.2); }
+.mock-bar i:nth-child(1){ background:#ff5f57; }
+.mock-bar i:nth-child(2){ background:#febc2e; }
+.mock-bar i:nth-child(3){ background:#28c840; }
+.mock-bar .ttl{ margin-inline-start:8px; letter-spacing:.02em; }
+
+/* Chat — bubbles */
+.chatmock{ padding:22px; display:flex; flex-direction:column; gap:14px; }
+.cm-bubble{ max-width:86%; padding:13px 16px; border-radius:16px; font-size:14.5px; line-height:1.55; color:var(--text); }
+.cm-user{ align-self:flex-start; background:rgba(111,188,250,.16); border:1px solid rgba(111,188,250,.32); border-top-right-radius:5px; }
+.cm-ai{ align-self:flex-end; background:rgba(198,242,78,.10); border:1px solid rgba(198,242,78,.28); border-top-left-radius:5px; }
+.cm-who{ display:block; font-family:var(--font-head); font-weight:800; font-size:11.5px; color:var(--lime-ink); margin-bottom:5px; letter-spacing:.02em; }
+
+/* Cowork — document being edited */
+.docmock-body{ padding:20px; display:grid; gap:13px; }
+.dm-line{ height:11px; border-radius:6px; background:rgba(255,255,255,.10); }
+.dm-line.short{ width:58%; }
+.dm-line.edited{ height:auto; padding:11px 13px; border-radius:10px; font-size:13.5px; color:var(--text);
+  background:rgba(198,242,78,.10); border:1px solid rgba(198,242,78,.32);
+  display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.dm-pill{ font-size:11px; font-weight:800; color:#0b1b2b; background:var(--lime); border-radius:999px; padding:3px 10px; flex-shrink:0; }
+
+/* Code — terminal */
+.termmock-body{ padding:18px 18px 20px; direction:rtl; text-align:right; font-size:13.5px; line-height:1.8; }
+.tm-line{ color:var(--muted); }
+.tm-line .tm-prompt{ color:var(--lime); font-weight:800; margin-inline-end:9px; }
+/* chat-style sender tags (Claude app — not a terminal) */
+.tm-you,.tm-claude{ display:inline-block; font-family:var(--font-head); font-weight:800; font-size:11px;
+  border-radius:6px; padding:2px 9px; margin-inline-end:10px; letter-spacing:.02em; }
+.tm-you{ color:var(--blue-soft); background:rgba(111,188,250,.14); border:1px solid rgba(111,188,250,.3); }
+.tm-claude{ color:var(--lime-ink); background:rgba(198,242,78,.12); border:1px solid rgba(198,242,78,.3); }
+.tm-line.cmd{ color:var(--text); }
+.tm-line.dim{ color:var(--faint); }
+.tm-line.ok{ color:var(--lime-ink); font-weight:600; margin-top:4px; }
+
+@media (max-width:900px){ .mode-visual{ width:100%; max-width:460px; } }
+
+/* ---------- "3 ways" overview slide (context before the deep slides) ---- */
+.ways3{ display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(16px,1.7vw,28px);
+  width:100%; max-width:1360px; margin:clamp(20px,2.6vw,38px) auto 0; flex:1 1 auto; min-height:0; grid-auto-rows:1fr; max-height:520px; }
+.way{ position:relative; text-align:right; border-radius:18px; padding:clamp(24px,2.2vw,40px) clamp(22px,2vw,34px);
+  display:flex; flex-direction:column; justify-content:center;
+  background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03));
+  border:1px solid var(--hair);
+  box-shadow:0 30px 70px -50px rgba(0,0,0,.7), inset 0 1px 1px rgba(255,255,255,.10);
+  transition:transform .5s var(--ease), border-color .3s; }
+.way:hover{ transform:translateY(-3px); border-color:rgba(198,242,78,.4); }
+.way-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; }
+.way-ic{ width:46px; height:46px; border-radius:13px; display:flex; align-items:center; justify-content:center;
+  background:rgba(111,188,250,.14); border:1px solid rgba(111,188,250,.32); color:var(--blue-soft); }
+.way.lime .way-ic{ background:rgba(198,242,78,.14); border-color:rgba(198,242,78,.36); color:var(--lime); }
+.way-ic svg{ width:24px; height:24px; }
+.way-num{ font-family:var(--font-head); font-weight:800; font-size:13px; color:var(--faint); direction:ltr;
+  border:1px solid var(--hair); border-radius:999px; width:27px; height:27px;
+  display:flex; align-items:center; justify-content:center; }
+.way-name{ font-family:var(--font-head); font-weight:800; font-size:clamp(22px,1.9vw,26px); letter-spacing:-.01em; color:var(--text); direction:ltr; }
+.way-sub{ font-size:clamp(13px,1.1vw,15px); color:var(--faint); margin-top:3px; }
+.way-role{ font-size:clamp(14px,1.25vw,16.5px); color:var(--muted); line-height:1.55; margin-top:12px; }
+@media (max-width:860px){ .ways3{ grid-template-columns:1fr; max-width:460px; } }
+
+/* ============================================================================
+   SKILLS CHAPTER — ported from claude-code-course, re-themed to Whalo.
+   blue (#6fbcfa) = neutral/context · lime (#c6f24e) = the "good"/action path.
+   ========================================================================== */
+.sk-kicker{ font-family:var(--font-head); font-weight:800; font-size:clamp(12px,1vw,14px);
+  letter-spacing:.14em; text-transform:uppercase; color:var(--blue-soft); margin-bottom:14px; }
+.headline .sk-em{ color:var(--lime-ink); font-style:normal; -webkit-text-fill-color:initial; }
+.sk-head{ text-align:center; max-width:1240px; margin:0 auto; }
+.sk-head .headline{ font-size:clamp(28px,3.5vw,50px); }
+.sk-head .lead{ margin:15px auto 0; text-align:center; max-width:66ch; font-size:clamp(16px,1.45vw,21px); }
+
+.sk-triplet{ display:flex; gap:clamp(16px,1.7vw,26px); justify-content:center; margin-top:clamp(22px,3vw,40px); flex-wrap:wrap; }
+.sk-triplet > div{ text-align:center; min-width:190px; padding:clamp(20px,2vw,32px) clamp(26px,2.4vw,40px); border-radius:16px; background:var(--glass); border:1px solid var(--hair); }
+.sk-triplet .num{ font-family:var(--font-head); font-weight:800; font-size:clamp(42px,4vw,56px); line-height:1; color:var(--lime); }
+.sk-triplet > div:nth-child(2) .num{ color:var(--blue-soft); } .sk-triplet > div:nth-child(3) .num{ color:var(--muted); }
+.sk-triplet .lbl{ font-size:clamp(13px,1.2vw,16px); color:var(--muted); margin-top:10px; }
+
+.sk-2{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(20px,2vw,32px); width:100%; max-width:1500px;
+  margin:clamp(18px,2.2vw,30px) auto 0; flex:1 1 auto; min-height:0; grid-auto-rows:1fr; max-height:min(560px,62vh); }
+.sk-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(15px,1.6vw,26px); width:100%; max-width:1500px;
+  margin:clamp(18px,2.2vw,28px) auto 0; flex:1 1 auto; min-height:0; grid-auto-rows:1fr; max-height:min(580px,64vh); }
+.sk-panel{ border-radius:18px; padding:clamp(24px,2.2vw,40px); border:1px solid var(--hair); text-align:right;
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.025)); display:flex; flex-direction:column; gap:13px; }
+.sk-panel.good{ border-color:rgba(198,242,78,.4); background:linear-gradient(180deg,rgba(198,242,78,.07),rgba(255,255,255,.02)); }
+.sk-phead{ display:flex; justify-content:space-between; font-family:var(--font-head); font-weight:800; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); }
+.sk-panel.good .sk-phead{ color:var(--lime-ink); }
+.sk-msg{ background:rgba(0,0,0,.22); border:1px solid var(--hair); border-radius:12px; padding:13px 15px; font-size:13.5px; line-height:1.5; color:var(--text); }
+.sk-msg .role{ display:block; font-size:11px; font-weight:800; color:var(--faint); margin-bottom:5px; }
+.sk-time{ font-family:var(--font-head); font-weight:800; font-size:30px; color:var(--text); }
+.sk-panel.good .sk-time{ color:var(--lime); }
+.sk-time-lbl{ font-size:12.5px; color:var(--muted); margin-top:2px; }
+
+.sk-big{ font-family:var(--font-head); font-weight:800; font-size:24px; line-height:1.15; color:var(--text); margin:2px 0 6px; }
+.sk-vsrows{ display:grid; gap:10px; }
+.sk-vsrow{ display:grid; grid-template-columns:96px 1fr; gap:14px; font-size:clamp(13px,1.2vw,16px); line-height:1.5; }
+.sk-vsrow .k{ color:var(--faint); font-weight:700; } .sk-vsrow .v{ color:var(--muted); }
+
+.sk-tn{ font-family:var(--font-head); font-weight:800; font-size:14px; color:var(--faint); }
+.sk-tg{ font-family:var(--font-head); font-weight:800; font-size:clamp(12px,1.1vw,14px); letter-spacing:.07em; text-transform:uppercase; color:var(--blue-soft); margin-top:4px; }
+.sk-panel.good .sk-tg{ color:var(--lime-ink); }
+.sk-tt{ font-size:clamp(21px,1.8vw,26px); font-weight:800; color:var(--text); margin:7px 0; font-family:var(--font-head); }
+.sk-td{ font-size:clamp(14px,1.3vw,17px); color:var(--muted); line-height:1.6; }
+.sk-ex{ margin-top:auto; background:rgba(0,0,0,.2); border:1px solid var(--hair); border-radius:11px; padding:13px 16px; }
+.sk-ex .exh{ font-size:clamp(11px,1vw,12.5px); font-weight:800; color:var(--blue-soft); letter-spacing:.04em; margin-bottom:5px; }
+.sk-panel.good .sk-ex .exh{ color:var(--lime-ink); }
+.sk-ex .exl{ font-size:clamp(12.5px,1.15vw,15px); color:var(--muted); line-height:1.5; }
+
+.sk-tree{ font-family:ui-monospace,Menlo,monospace; font-size:clamp(13.5px,1.3vw,17px); line-height:2; direction:ltr; text-align:left;
+  background:#04040a; border:1px solid var(--hair); border-radius:16px; padding:clamp(20px,2vw,36px) clamp(22px,2.2vw,36px);
+  display:flex; flex-direction:column; justify-content:center; }
+.sk-tree .head{ color:var(--blue-soft); font-weight:700; margin-bottom:4px; }
+.sk-tree .row{ color:var(--muted); } .sk-tree .row.must{ color:var(--lime); } .sk-tree .row.opt{ color:var(--faint); padding-inline-start:18px; font-size:.92em; }
+.sk-tree .tag{ font-size:.7em; border:1px solid var(--hair); border-radius:5px; padding:1px 6px; margin-inline-start:8px; color:var(--faint); }
+.sk-tree .row.must .tag{ color:#0b1b2b; background:var(--lime); border-color:var(--lime); }
+.sk-tree.teal .head,.sk-tree.teal .row.must{ color:var(--lime); }
+.sk-tree .note{ color:var(--faint); font-size:.8em; margin-inline-start:6px; }
+.sk-rules{ display:grid; gap:clamp(13px,1.4vw,20px); align-content:center; }
+.sk-rule{ display:flex; gap:14px; text-align:right; }
+.sk-rule .n{ flex-shrink:0; width:34px; height:34px; border-radius:8px; background:rgba(111,188,250,.14); border:1px solid rgba(111,188,250,.3);
+  color:var(--blue-soft); font-family:var(--font-head); font-weight:800; font-size:14px; display:flex; align-items:center; justify-content:center; }
+.sk-rule .t{ font-weight:700; color:var(--text); font-size:clamp(15px,1.4vw,18px); } .sk-rule .d{ font-size:clamp(12.5px,1.2vw,15.5px); color:var(--muted); line-height:1.5; margin-top:4px; }
+.sk-rule code{ font-family:ui-monospace,monospace; background:rgba(255,255,255,.08); padding:1px 6px; border-radius:5px; color:var(--lime-ink); font-size:.9em; }
+
+.slide.sk-video{ padding:0; overflow:hidden; }
+.sk-video video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; cursor:pointer; z-index:1; }
+.sk-video .vcap{ position:absolute; bottom:26px; right:30px; z-index:2; font-family:var(--font-head); font-weight:700; font-size:13px;
+  color:#fff; background:rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.2); border-radius:999px; padding:8px 14px; backdrop-filter:blur(6px); pointer-events:none; }
+
+.sk-stack{ display:grid; gap:clamp(11px,1.3vw,18px); align-content:center; }
+.sk-layer{ display:flex; justify-content:space-between; align-items:center; border-radius:14px; padding:clamp(15px,1.6vw,24px) clamp(18px,1.8vw,28px); border:1px solid var(--hair); background:var(--glass); text-align:right; }
+.sk-layer .l-n{ font-family:var(--font-head); font-weight:800; font-size:12px; color:var(--faint); letter-spacing:.06em; }
+.sk-layer .l-t{ font-weight:800; color:var(--text); font-size:clamp(16px,1.5vw,20px); } .sk-layer .l-d{ font-size:clamp(12px,1.15vw,15px); color:var(--muted); margin-top:3px; }
+.sk-layer .l-tag{ font-size:clamp(11px,1vw,13px); font-weight:700; color:var(--blue-soft); background:rgba(111,188,250,.14); border:1px solid rgba(111,188,250,.3); border-radius:999px; padding:4px 11px; white-space:nowrap; }
+.sk-layer.meta{ border-color:rgba(198,242,78,.34); } .sk-layer.meta .l-tag{ color:var(--lime-ink); background:rgba(198,242,78,.12); border-color:rgba(198,242,78,.3); }
+.sk-code{ font-family:ui-monospace,Menlo,monospace; font-size:clamp(12.5px,1.2vw,15.5px); line-height:1.65; direction:ltr; text-align:left;
+  background:#04040a; border:1px solid var(--hair); border-radius:16px; padding:clamp(18px,1.8vw,28px) clamp(20px,1.9vw,30px); color:#c9cfe0; white-space:pre-wrap; align-self:center; }
+.sk-code .k{ color:var(--blue-soft); } .sk-code .s{ color:var(--lime); } .sk-code .c{ color:var(--faint); }
+
+.sk-when .sk-panel{ justify-content:center; }
+.sk-when .wh{ font-family:var(--font-head); font-weight:800; font-size:clamp(18px,1.7vw,24px); margin-bottom:15px; }
+.sk-when .yes .wh{ color:var(--lime-ink); } .sk-when .no .wh{ color:var(--faint); }
+.sk-when ul{ list-style:none; display:grid; gap:clamp(10px,1.2vw,16px); }
+.sk-when li{ font-size:clamp(13.5px,1.3vw,17px); color:var(--muted); line-height:1.5; padding-inline-start:26px; position:relative; }
+.sk-when .yes li::before{ content:"✓"; position:absolute; inset-inline-start:0; color:var(--lime); font-weight:800; }
+.sk-when .no li::before{ content:"✕"; position:absolute; inset-inline-start:0; color:var(--faint); font-weight:800; }
+
+.sk-hg{ font-family:var(--font-head); font-weight:800; font-size:clamp(12px,1.1vw,14px); letter-spacing:.07em; text-transform:uppercase; color:var(--blue-soft); }
+.sk-panel.good .sk-hg{ color:var(--lime-ink); }
+.sk-ht{ font-size:clamp(27px,2.3vw,34px); font-weight:800; color:var(--text); margin:7px 0; font-family:var(--font-head); }
+.sk-hd{ font-size:clamp(14px,1.3vw,17px); color:var(--muted); line-height:1.6; } .sk-hd strong{ color:var(--text); }
+.sk-chips{ display:flex; flex-wrap:wrap; gap:8px; margin-top:11px; }
+.sk-chip{ font-family:var(--font-head); font-size:clamp(12px,1.1vw,14px); font-weight:700; padding:4px 11px; border-radius:6px; color:var(--lime-ink); background:rgba(198,242,78,.12); border:1px solid rgba(198,242,78,.28); }
+.sk-foot{ margin-top:auto; padding-top:14px; border-top:1px solid var(--hair); font-size:clamp(12.5px,1.15vw,15px); color:var(--faint); }
+.sk-panel.good .sk-foot{ color:var(--lime-ink); }
+
+.sk-rail{ display:grid; gap:clamp(10px,1.2vw,16px); align-content:center; }
+.sk-stepmini{ background:var(--glass); border:1px solid var(--hair); border-radius:12px; padding:clamp(12px,1.3vw,18px) clamp(14px,1.4vw,20px); text-align:right; }
+.sk-stepmini .smn{ font-family:var(--font-head); font-weight:800; font-size:13px; color:var(--blue-soft); background:rgba(111,188,250,.14); border-radius:5px; padding:2px 8px; }
+.sk-stepmini .smt{ font-weight:700; color:var(--text); font-size:clamp(15px,1.4vw,18px); margin-top:6px; }
+.sk-stepmini .smd{ font-size:clamp(12px,1.15vw,15px); color:var(--muted); margin-top:3px; line-height:1.45; }
+.sk-stepmini code{ font-family:ui-monospace,monospace; color:var(--lime-ink); background:rgba(255,255,255,.07); padding:0 5px; border-radius:4px; }
+
+.sk-elem{ border-radius:14px; padding:clamp(18px,1.9vw,32px); border:1px solid var(--hair); background:var(--glass); text-align:right;
+  display:flex; flex-direction:column; justify-content:center; }
+.sk-elem .cn{ font-family:var(--font-head); font-weight:800; font-size:13px; color:var(--blue-soft); }
+.sk-elem .ct{ font-family:var(--font-head); font-weight:800; font-size:clamp(18px,1.6vw,22px); color:var(--text); margin:5px 0 7px; direction:ltr; text-align:right; }
+.sk-elem .cd{ font-size:clamp(12.5px,1.2vw,15.5px); color:var(--muted); line-height:1.5; }
+
+.sk-cat{ border-radius:16px; padding:clamp(22px,2.2vw,38px); border:1px solid var(--hair); background:var(--glass); text-align:right;
+  display:flex; flex-direction:column; justify-content:center; }
+.sk-cat .cn{ font-family:var(--font-head); font-weight:800; font-size:12px; letter-spacing:.05em; text-transform:uppercase; color:var(--blue-soft); }
+.sk-cat .cname{ font-family:var(--font-head); font-weight:800; font-size:clamp(21px,1.9vw,26px); color:var(--text); margin:9px 0 5px; direction:ltr; text-align:right; }
+.sk-cat .curl{ font-family:ui-monospace,monospace; font-size:clamp(12px,1.05vw,14px); color:var(--lime-ink); direction:ltr; text-align:right; word-break:break-all; }
+.sk-cat .cd{ font-size:clamp(12.5px,1.2vw,15.5px); color:var(--muted); line-height:1.55; margin-top:11px; }
+.sk-cat .ctag{ display:inline-block; margin-top:13px; font-size:12px; font-weight:700; color:var(--faint); border:1px solid var(--hair); border-radius:999px; padding:4px 11px; }
+
+.sk-sc-label{ font-family:var(--font-head); font-weight:800; font-size:clamp(12px,1.1vw,14px); letter-spacing:.07em; text-transform:uppercase; color:var(--blue-soft); }
+.sk-panel.good .sk-sc-label{ color:var(--lime-ink); }
+.sk-sc-title{ font-size:clamp(25px,2.1vw,30px); font-weight:800; color:var(--text); font-family:var(--font-head); }
+.sk-path{ font-family:ui-monospace,monospace; font-size:clamp(13.5px,1.25vw,16px); direction:ltr; text-align:left; color:var(--text); background:rgba(0,0,0,.25); border:1px solid var(--hair); border-radius:10px; padding:12px 15px; }
+.sk-sc-desc{ font-size:clamp(13.5px,1.3vw,17px); color:var(--muted); line-height:1.6; } .sk-sc-desc strong{ color:var(--text); }
+.sk-sc-desc code,.sk-when2 code{ font-family:ui-monospace,monospace; color:var(--lime-ink); background:rgba(255,255,255,.07); padding:1px 6px; border-radius:4px; }
+.sk-when2{ margin-top:auto; padding-top:14px; border-top:1px solid var(--hair); font-size:clamp(13px,1.2vw,16px); color:var(--muted); line-height:1.55; } .sk-when2 b{ color:var(--text); }
+
+.sk-cstep{ border-radius:16px; padding:clamp(22px,2.2vw,38px); border:1px solid var(--hair); background:var(--glass); text-align:right;
+  display:flex; flex-direction:column; justify-content:center; }
+.sk-cstep .csn{ font-family:var(--font-head); font-weight:800; font-size:15px; color:#0b1b2b; background:var(--lime); width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:13px; }
+.sk-cstep .cst{ font-weight:800; color:var(--text); font-size:clamp(18px,1.6vw,22px); font-family:var(--font-head); }
+.sk-cstep .csd{ font-size:clamp(13px,1.2vw,16px); color:var(--muted); line-height:1.55; margin-top:7px; }
+
+@media (max-width:860px){ .sk-2,.sk-3{ grid-template-columns:1fr; max-width:540px; } }
+
+/* ============================================================================
+   ANIMATED MOCKS — Chat (Claude composer) · Cowork (live edit) · Code (terminal)
+   Driven by JS; auto-play & loop while the slide is active.
+   ========================================================================== */
+@keyframes cl-blink{ 50%{ opacity:0; } }
+
+/* —— Chat · Claude composer —— */
+.cl-chat{ background:#262624; display:flex; flex-direction:column; }
+.cl-chat .mock-bar{ background:rgba(0,0,0,.28); }
+.cl-convo{ padding:18px 18px 8px; display:flex; flex-direction:column; gap:11px; min-height:178px; justify-content:flex-end; }
+.cl-convo .cm-bubble{ max-width:86%; padding:11px 14px; border-radius:15px; font-size:14px; line-height:1.5; color:#f2efe9; }
+.cl-convo .cm-user{ align-self:flex-start; background:rgba(111,188,250,.16); border:1px solid rgba(111,188,250,.32); border-top-right-radius:5px; }
+.cl-convo .cm-ai{ align-self:flex-end; background:rgba(198,242,78,.10); border:1px solid rgba(198,242,78,.28); border-top-left-radius:5px; }
+.cl-convo .cm-who{ display:block; font-family:var(--font-head); font-weight:800; font-size:11px; color:var(--lime-ink); margin-bottom:4px; }
+.cl-convo .cm-bubble.anim-in{ opacity:0; transform:translateY(8px); }
+.cl-convo .cm-bubble.anim-in.in{ opacity:1; transform:none; transition:opacity .35s var(--ease), transform .35s var(--ease); }
+.cl-dots{ display:inline-flex; gap:4px; align-items:center; padding:2px 0; }
+.cl-dots span{ width:6px; height:6px; border-radius:50%; background:var(--lime); animation:cl-bounce 1s infinite; }
+.cl-dots span:nth-child(2){ animation-delay:.15s; } .cl-dots span:nth-child(3){ animation-delay:.3s; }
+@keyframes cl-bounce{ 0%,100%{ opacity:.3; transform:translateY(0); } 50%{ opacity:1; transform:translateY(-3px); } }
+.cl-composer{ margin:auto 12px 12px; background:#30302E; border:1px solid #46453f; border-radius:14px; padding:11px 13px; }
+.cl-field{ min-height:22px; font-size:14px; line-height:1.5; }
+.cl-field .cl-text{ color:#f2efe9; } .cl-field .cl-ph{ color:#8a877d; }
+.cl-field.typing .cl-ph, .cl-field.has-text .cl-ph{ display:none; }
+.cl-field.typing .cl-text::after{ content:''; display:inline-block; width:2px; height:1.05em; background:var(--lime); margin-inline-start:2px; vertical-align:-2px; animation:cl-blink 1s steps(1) infinite; }
+.cl-row{ display:flex; align-items:center; justify-content:space-between; margin-top:11px; }
+.cl-tools{ display:flex; gap:5px; }
+.cl-ic{ width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#a8a59a; }
+.cl-ic svg{ width:17px; height:17px; }
+.cl-right{ display:flex; align-items:center; gap:9px; }
+.cl-model{ display:inline-flex; align-items:center; gap:4px; font-size:12.5px; color:#c2c0b6; white-space:nowrap; }
+.cl-model svg{ width:13px; height:13px; }
+.cl-send{ width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; background:#3a3a36; color:#7a776e; transition:background .25s, color .25s, transform .2s; }
+.cl-send svg{ width:17px; height:17px; }
+.cl-send.on{ background:#c2702e; color:#fff; transform:scale(1.05); }
+
+/* —— Cowork · live document edit —— */
+.cl-editing{ margin-inline-start:auto; display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:700;
+  color:var(--lime-ink); opacity:0; transition:opacity .3s; direction:rtl; }
+.cl-editing::before{ content:''; width:6px; height:6px; border-radius:50%; background:var(--lime); box-shadow:0 0 8px var(--lime); }
+.cl-editing.on{ opacity:1; }
+.docmock-body .dm-line.g{ width:0; transition:width .55s var(--ease); }
+.dm-line.edited{ overflow:hidden; }
+.dm-line.edited .cw-text{ color:var(--text); }
+.dm-line.edited.typing .cw-text::after{ content:''; display:inline-block; width:2px; height:1em; background:var(--lime); margin-inline-start:3px; vertical-align:-1px; animation:cl-blink 1s steps(1) infinite; }
+.dm-line.edited .dm-pill{ opacity:0; transform:scale(.6); transition:opacity .3s var(--ease), transform .3s var(--ease); }
+.dm-line.edited.popped .dm-pill{ opacity:1; transform:none; }
+.dm-line.edited.popped{ box-shadow:0 0 0 1px rgba(198,242,78,.32), 0 0 26px -6px rgba(198,242,78,.55); }
+
+/* —— Code · live terminal —— */
+.termmock-body.typing .tm-cmd::after{ content:''; display:inline-block; width:8px; height:1.05em; background:var(--lime); margin-inline-start:2px; vertical-align:-2px; animation:cl-blink 1s steps(1) infinite; }
+.tm-out .tm-line{ opacity:0; transform:translateY(4px); transition:opacity .35s var(--ease), transform .35s var(--ease); }
+.tm-out .tm-line.show{ opacity:1; transform:none; }
+.tm-out .tm-line.ok.show{ text-shadow:0 0 15px rgba(198,242,78,.55); }
+
+/* —— Cowork v2 · ask → Claude produces the artifact —— */
+.cw-mock{ display:flex; flex-direction:column; }
+.cw-ask{ display:flex; align-items:flex-start; gap:9px; padding:14px 16px 13px; }
+.cw-ask-who{ flex-shrink:0; font-family:var(--font-head); font-weight:800; font-size:10px; letter-spacing:.03em;
+  color:var(--blue-soft); background:rgba(111,188,250,.14); border:1px solid rgba(111,188,250,.3); border-radius:6px; padding:4px 8px; }
+.cw-ask-text{ font-size:13.5px; line-height:1.5; color:var(--text); }
+.cw-ask.typing .cw-ask-text::after{ content:''; display:inline-block; width:2px; height:1em; background:var(--lime);
+  margin-inline-start:2px; vertical-align:-1px; animation:cl-blink 1s steps(1) infinite; }
+.cw-doc{ border-top:1px solid var(--hair); padding:13px 16px 16px; display:grid; gap:9px; background:rgba(0,0,0,.16); }
+.cw-var{ background:var(--glass); border:1px solid var(--hair); border-radius:11px; padding:10px 13px;
+  opacity:0; transform:translateY(6px); transition:opacity .35s var(--ease), transform .35s var(--ease); }
+.cw-var.in{ opacity:1; transform:none; }
+.cw-var.done{ border-color:rgba(198,242,78,.32); background:rgba(198,242,78,.05); }
+.cw-var-h{ display:flex; align-items:center; justify-content:space-between; margin-bottom:5px; }
+.cw-tag{ font-family:var(--font-head); font-weight:700; font-size:11.5px; color:var(--lime-ink); }
+.cw-check{ font-size:12px; font-weight:900; color:var(--lime); opacity:0; transform:scale(.4); transition:.25s var(--ease); }
+.cw-var.done .cw-check{ opacity:1; transform:none; }
+.cw-copy{ font-size:14px; line-height:1.45; color:var(--text); min-height:1em; }
+.cw-var.typing .cw-copy::after{ content:''; display:inline-block; width:2px; height:1em; background:var(--lime);
+  margin-inline-start:2px; vertical-align:-1px; animation:cl-blink 1s steps(1) infinite; }
+
+/* —— Skills · definition comparison table (Context vs Action) — full-bleed —— */
+.sk-deftable-slide{ padding:clamp(24px,3vw,48px) clamp(28px,4vw,72px) !important; }
+.sk-deftable-slide .sk-head{ margin-bottom:clamp(12px,1.6vw,22px); }
+.sk-deftable-slide .sk-head .headline{ font-size:clamp(26px,3vw,42px); }
+.sk-deftable{ width:100%; max-width:1600px; margin:0 auto;
+  border:1px solid var(--hair); border-radius:18px; overflow:hidden;
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+  box-shadow:0 40px 90px -54px rgba(0,0,0,.7); }
+.sk-deftable table{ width:100%; border-collapse:collapse; table-layout:fixed; }
+.sk-deftable td, .sk-deftable th{ padding:clamp(18px,2.6vw,40px) clamp(20px,2.2vw,38px); text-align:right; vertical-align:middle;
+  border-bottom:1px solid var(--hair); font-size:clamp(15px,1.5vw,22px); line-height:1.55; }
+.sk-deftable tr:last-child td, .sk-deftable tr:last-child th{ border-bottom:none; }
+.sk-deftable thead th{ background:rgba(0,0,0,.24); font-family:var(--font-head); font-weight:800; letter-spacing:-.01em; }
+.sk-deftable thead th .en{ font-size:clamp(19px,1.9vw,28px); } .sk-deftable thead th .he{ font-size:.72em; color:var(--faint); font-weight:600; }
+.sk-deftable thead th.ctx .en{ color:var(--blue-soft); } .sk-deftable thead th.act .en{ color:var(--lime-ink); }
+.sk-deftable thead th:first-child{ width:13%; background:transparent; }
+.sk-deftable col.half{ width:43.5%; }
+.sk-deftable .rk{ font-family:var(--font-head); font-weight:800; color:var(--text); font-size:clamp(15px,1.5vw,22px); background:rgba(255,255,255,.03); }
+.sk-deftable td.ctx{ color:var(--muted); border-inline-start:1px solid var(--hair); }
+.sk-deftable td.act{ color:var(--muted); border-inline-start:1px solid var(--hair); }
+.sk-deftable tbody tr:nth-child(even) td{ background:rgba(255,255,255,.018); }
+.sk-deftable td em{ color:var(--text); font-style:italic; font-weight:600; }
+.sk-deftable td b{ color:var(--lime-ink); font-weight:800; }
+.sk-deftable td.ctx b{ color:var(--blue-soft); }
+.sk-defrule{ margin:clamp(16px,1.8vw,26px) auto 0; max-width:1100px; text-align:center; font-size:clamp(14px,1.3vw,19px); color:var(--muted); line-height:1.6; }
+.sk-defrule b{ color:var(--text); } .sk-defrule .ctx{ color:var(--blue-soft); font-weight:800; } .sk-defrule .act{ color:var(--lime-ink); font-weight:800; }
+@media (max-width:760px){ .sk-deftable td, .sk-deftable th{ padding:11px 12px; font-size:13px; } }
+
+/* —— Skills · interactive accordion of the 12 project skills —— */
+.acc-slide{ padding:clamp(26px,3vw,52px) clamp(28px,4vw,72px) !important; }
+.acc-slide .sk-head{ margin-bottom:clamp(12px,1.5vw,20px); }
+.acc-wrap{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(18px,2vw,34px); width:100%; max-width:1480px; margin:0 auto; align-content:start; }
+.acc-col{ display:flex; flex-direction:column; gap:clamp(10px,1vw,15px); }
+.acc-proj{ font-family:var(--font-head); font-weight:800; font-size:clamp(12px,1.1vw,14px); letter-spacing:.04em;
+  color:var(--faint); margin:clamp(4px,.6vw,8px) 2px 1px; display:flex; align-items:center; gap:9px; direction:ltr; }
+.acc-proj::after{ content:""; flex:1; height:1px; background:var(--hair); }
+.acc-proj .pteam{ font-family:var(--font-body); font-weight:700; color:var(--blue-soft); font-size:.92em; }
+
+.acc{ border:1px solid var(--hair); border-radius:13px; overflow:hidden;
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02)); transition:border-color .25s; }
+.acc.ctx{ border-inline-start:3px solid rgba(111,188,250,.55); }
+.acc.act{ border-inline-start:3px solid rgba(198,242,78,.6); }
+.acc.open{ border-color:rgba(255,255,255,.22); }
+.acc-head{ display:flex; align-items:center; gap:12px; width:100%; cursor:pointer; text-align:right;
+  background:none; border:none; font-family:var(--font-body); color:var(--text);
+  padding:clamp(12px,1.3vw,18px) clamp(14px,1.4vw,20px); transition:background .2s; }
+.acc-head:hover{ background:rgba(255,255,255,.05); }
+.acc-head:focus-visible{ outline:2px solid var(--blue-soft); outline-offset:-2px; }
+.acc-badge{ flex-shrink:0; font-family:var(--font-head); font-weight:800; font-size:10px; letter-spacing:.05em;
+  padding:4px 9px; border-radius:6px; }
+.acc.ctx .acc-badge{ color:var(--blue-soft); background:rgba(111,188,250,.14); border:1px solid rgba(111,188,250,.3); }
+.acc.act .acc-badge{ color:var(--lime-ink); background:rgba(198,242,78,.13); border:1px solid rgba(198,242,78,.32); }
+.acc-name{ font-family:ui-monospace,Menlo,monospace; font-weight:600; font-size:clamp(14px,1.35vw,17px); color:var(--text); direction:ltr; }
+.acc-what{ flex:1; min-width:0; font-size:clamp(12.5px,1.15vw,14.5px); color:var(--muted);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.acc-chev{ flex-shrink:0; width:20px; height:20px; color:var(--faint); transition:transform .3s var(--ease); }
+.acc.open .acc-chev{ transform:rotate(-180deg); color:var(--text); }
+.acc-detail{ display:grid; grid-template-rows:0fr; transition:grid-template-rows .3s var(--ease); }
+.acc.open .acc-detail{ grid-template-rows:1fr; }
+.acc-detail-in{ overflow:hidden; }
+.acc-body{ padding:2px clamp(14px,1.4vw,20px) clamp(14px,1.4vw,18px) clamp(40px,3vw,50px); display:grid; gap:9px; }
+.acc-row{ display:grid; grid-template-columns:max-content 1fr; gap:11px; align-items:baseline;
+  font-size:clamp(12.5px,1.15vw,14.5px); line-height:1.5; }
+.acc-k{ font-family:var(--font-head); font-weight:800; font-size:clamp(10.5px,1vw,12px); letter-spacing:.03em;
+  color:var(--blue-soft); white-space:nowrap; padding-top:1px; }
+.acc.act .acc-k{ color:var(--lime-ink); }
+.acc-v{ color:var(--muted); } .acc-v b{ color:var(--text); }
+.acc-v.prompt{ font-style:italic; color:var(--text); background:rgba(0,0,0,.2); border:1px solid var(--hair);
+  border-radius:8px; padding:8px 11px; }
+@media (prefers-reduced-motion:reduce){ .acc-detail,.acc-chev{ transition:none; } }
+@media (max-width:900px){ .acc-wrap{ grid-template-columns:1fr; max-width:620px; } .acc-what{ display:none; } }
+
+/* —— Skills · "where does the knowledge come from" (3 ways) —— */
+.kb-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(16px,1.7vw,26px); width:100%; max-width:1360px;
+  margin:clamp(18px,2.2vw,30px) auto 0; }
+.kb-card{ border-radius:18px; padding:clamp(22px,2vw,34px); border:1px solid var(--hair);
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.025)); text-align:right;
+  display:flex; flex-direction:column; gap:11px; }
+.kb-top{ display:flex; align-items:center; justify-content:space-between; }
+.kb-ic{ width:48px; height:48px; border-radius:13px; display:flex; align-items:center; justify-content:center;
+  background:rgba(198,242,78,.13); border:1px solid rgba(198,242,78,.34); color:var(--lime); }
+.kb-ic svg{ width:25px; height:25px; }
+.kb-n{ font-family:var(--font-head); font-weight:800; font-size:13px; color:var(--faint);
+  border:1px solid var(--hair); border-radius:999px; width:28px; height:28px; display:flex; align-items:center; justify-content:center; }
+.kb-t{ font-family:var(--font-head); font-weight:800; font-size:clamp(19px,1.7vw,24px); color:var(--text); }
+.kb-when{ font-size:clamp(13px,1.2vw,15.5px); color:var(--muted); line-height:1.5; }
+.kb-do{ margin-top:auto; font-size:clamp(13px,1.2vw,15.5px); color:var(--text); line-height:1.5;
+  background:rgba(0,0,0,.2); border:1px solid var(--hair); border-radius:11px; padding:11px 13px; }
+.kb-do b{ color:var(--lime-ink); }
+.kb-note{ margin:clamp(16px,1.8vw,26px) auto 0; max-width:1100px; text-align:center; font-size:clamp(14px,1.25vw,17px); color:var(--muted); line-height:1.6; }
+.kb-note .yours{ color:var(--lime-ink); font-weight:800; } .kb-note .claude{ color:var(--blue-soft); font-weight:800; }
+@media (max-width:860px){ .kb-3{ grid-template-columns:1fr; max-width:480px; } }
+
+/* ============================================================================
+   FILL-THE-SCREEN — make every base-theme layout use the full stage, balanced.
+   ========================================================================== */
+/* two-col (PROMISE · bring-your-own · playbook): cards grow & center content */
+.layout-two-col .cols{ flex:1 1 auto; min-height:0; align-content:stretch; max-height:min(560px,60vh); }
+.layout-two-col .cols .card{ display:flex; flex-direction:column; justify-content:center; padding:clamp(28px,2.4vw,46px); }
+.layout-two-col .head .headline{ font-size:clamp(30px,3.5vw,52px); }
+.layout-two-col .card .body{ font-size:clamp(17px,1.55vw,23px); line-height:1.75; }
+.layout-two-col .card h3{ font-size:clamp(21px,1.9vw,28px) !important; }
+.layout-two-col .note{ font-size:clamp(14px,1.3vw,18px); }
+.layout-two-col .chipwrap{ max-width:none; gap:clamp(12px,1.4vw,18px); }
+.layout-two-col .chipwrap .pill{ font-size:clamp(13px,1.25vw,17px); padding:9px 18px; }
+
+/* split (Chat/Cowork/Code + practice): bigger copy, more room */
+.layout-split .copy{ max-width:700px; }
+.layout-split .copy .headline{ font-size:clamp(30px,3.5vw,54px); }
+.layout-split .copy .lead{ font-size:clamp(17px,1.6vw,23px); max-width:52ch; }
+.layout-split .bullets{ max-width:54ch; margin-top:clamp(22px,2.4vw,34px); gap:clamp(16px,1.5vw,22px); }
+.layout-split .bullets li{ font-size:clamp(16px,1.4vw,20px); }
+.layout-split .steps li{ font-size:clamp(16px,1.4vw,20px); }
+.layout-split .pill{ font-size:clamp(13px,1.2vw,16px); }
+
+/* title hero (opening) — owns the screen */
+.layout-title .pingo-stage{ height:clamp(280px,42vh,470px); width:min(600px,58vw); }
+.layout-title .title{ font-size:clamp(46px,6vw,92px); }
+.layout-title .lead{ font-size:clamp(18px,1.7vw,25px); max-width:58ch; margin-top:clamp(20px,2.4vw,32px); }
+.layout-title .eyebrow{ font-size:clamp(12px,1.1vw,15px); }
+
+/* section divider — bigger index + headline */
+.layout-section .headline{ font-size:clamp(34px,4.4vw,66px); }
+.layout-section .lead{ font-size:clamp(18px,1.65vw,24px); }
+
+/* closing hero (end) */
+.layout-closing .pingo-stage{ height:clamp(260px,40vh,430px); width:min(520px,54vw); }
+.layout-closing .headline{ font-size:clamp(32px,4.1vw,60px); }
+.layout-closing .lead{ font-size:clamp(18px,1.7vw,25px); max-width:62ch; margin-top:clamp(18px,2.2vw,30px); }
+.layout-closing .foot{ font-size:clamp(14px,1.3vw,18px); margin-top:clamp(24px,3vw,40px); }
+
+/* —— mascots wave · live chroma-key video (transparent over the deck bg) —— */
+.kw-stage{ position:relative; width:min(1180px,84vw); aspect-ratio:16/9; display:flex; align-items:center; justify-content:center; }
+#kwCanvas{ width:100%; height:100%; display:block; filter:drop-shadow(0 40px 60px rgba(0,0,0,.5)); }
+#kwVideo{ position:absolute; width:2px; height:2px; opacity:0; pointer-events:none; left:-9999px; }
+.kw-slide .headline{ font-size:clamp(34px,4.4vw,64px); }
+
+/* ---------- projects appendix ---------- */
+.proj-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(14px,1.5vw,22px);
+  width:100%; max-width:1400px; margin:clamp(16px,2vw,28px) auto 0; flex:1 1 auto; min-height:0;
+  grid-auto-rows:1fr; max-height:min(500px,58vh); }
+.proj-card{ border:1px solid var(--hair); border-radius:16px; padding:clamp(15px,1.4vw,22px);
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+  display:flex; flex-direction:column; gap:8px; text-align:right; }
+.proj-card.built{ border-color:rgba(198,242,78,.4); background:linear-gradient(180deg,rgba(198,242,78,.06),rgba(255,255,255,.02)); }
+.proj-top{ display:flex; align-items:center; gap:10px; }
+.proj-emoji{ font-size:22px; }
+.proj-team{ font-family:var(--font-head); font-weight:800; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--blue-soft); }
+.proj-card.built .proj-team{ color:var(--lime-ink); }
+.proj-name{ font-family:ui-monospace,Menlo,monospace; font-size:clamp(13.5px,1.15vw,16px); color:var(--text); font-weight:600; direction:ltr; text-align:left; }
+.proj-path{ font-family:ui-monospace,Menlo,monospace; font-size:11px; color:var(--faint); direction:ltr; text-align:left; }
+.proj-skills{ display:flex; flex-wrap:wrap; gap:6px; margin-top:auto; padding-top:6px; }
+.proj-chip{ font-size:10.5px; padding:3px 9px; border-radius:999px; border:1px solid var(--hair); color:var(--faint); }
+.proj-chip.on{ color:#0b1b2b; background:var(--lime); border-color:var(--lime); font-weight:700; }
+.proj-chip.act{ border-color:rgba(111,188,250,.4); color:var(--blue-soft); }
+
+/* ---------- resources appendix ---------- */
+.res-grid{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(12px,1.3vw,18px);
+  width:100%; max-width:1120px; margin:clamp(16px,2vw,26px) auto 0; flex:1 1 auto; min-height:0;
+  grid-auto-rows:1fr; max-height:min(480px,56vh); }
+.res-card{ display:flex; align-items:center; gap:15px; padding:clamp(14px,1.4vw,22px);
+  border:1px solid var(--hair); border-radius:14px; text-decoration:none; text-align:right; cursor:pointer;
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+  transition:transform .2s var(--ease), border-color .2s, background .2s; }
+.res-card:hover{ transform:translateY(-2px); border-color:rgba(111,188,250,.5); background:rgba(111,188,250,.07); }
+.res-ic{ font-size:26px; flex-shrink:0; }
+.res-body{ flex:1; min-width:0; }
+.res-h{ font-family:var(--font-head); font-weight:800; font-size:clamp(15px,1.3vw,18px); color:var(--text); }
+.res-d{ font-size:clamp(12px,1.05vw,14px); color:var(--muted); line-height:1.45; margin-top:2px; }
+.res-go{ color:var(--faint); font-size:18px; flex-shrink:0; }
+.res-card:hover .res-go{ color:var(--blue-soft); }
+</style>
+</head>
+<body>
+
+  <div class="fx-orbs"></div>
+  <div class="brandmark"><img src="whalo-logo.png" alt="Whalo" /></div>
+  <div class="progress" id="progress"></div>
+
+  <main class="deck" id="deck">
+
+    <!-- ===== 0 · MASCOTS WAVE · chroma-key video (opening) ============= -->
+    <section class="slide kw-slide" style="flex-direction:column;justify-content:center;align-items:center;text-align:center">
+      <div class="kw-stage anim">
+        <video id="kwVideo" src="mascots-wave.mp4" muted loop playsinline preload="auto"></video>
+        <canvas id="kwCanvas"></canvas>
+      </div>
+      <div class="anim" style="margin-top:clamp(6px,1.4vw,22px)">
+        <div class="eyebrow" style="display:inline-block">Whalo · AI Week</div>
+        <h2 class="headline">נעים להכיר — <span class="accent">בואו נבנה ביחד</span> 👋</h2>
+      </div>
+    </section>
+
+    <!-- ===== 1 · TITLE ===================================== -->
+    <section class="slide layout-title">
+      <div class="pingo-stage" data-animation="wave"></div>
+      <div class="eyebrow anim">סדנת AI · Whalo</div>
+      <h1 class="title anim">מתחילים עם <span class="accent">Claude&nbsp;Desktop&nbsp;app</span></h1>
+      <p class="lead anim">5 שעות. בסוף היום תצאו עם אפליקציה קטנה שבניתם בעצמכם,
+        ועם Skill משלכם — בלי לכתוב שורת קוד אחת.</p>
+    </section>
+
+    <!-- ===== 1b · ABOUT ME (Design AI brand) ============= -->
+    <section class="slide whoami-slide">
+      <div class="dark-bg"></div>
+
+      <!-- Full-bleed photo right -->
+      <div class="whoami-photo">
+        <img src="assets/daniel-nobg.png" alt="Daniel Boaron" />
+        <div class="whoami-photo-corner"></div>
+      </div>
+
+      <!-- Text left -->
+      <div class="whoami-text">
+        <div class="whoami-brand">
+          <img src="assets/design-ai-logo.svg" alt="Design AI" />
+        </div>
+        <div class="whoami-name">Daniel Boaron</div>
+        <div class="whoami-bio">Designer, developer, and founder of Design&nbsp;AI. Helping design teams go from AI-curious to AI-native.</div>
+        <div class="whoami-stats">
+          <div class="whoami-stat">
+            <div class="whoami-stat-num">7</div>
+            <div class="whoami-stat-label">Design AI Conferences</div>
+          </div>
+          <div class="whoami-stat">
+            <div class="whoami-stat-num">10,000+</div>
+            <div class="whoami-stat-label">Designers Trained</div>
+          </div>
+          <div class="whoami-stat">
+            <div class="whoami-stat-num">50+</div>
+            <div class="whoami-stat-label">Team Workshops</div>
+          </div>
+        </div>
+        <div class="whoami-marquee-wrap">
+          <div class="whoami-marquee-label">Trusted by leading teams</div>
+          <div class="whoami-marquee">
+            <div class="whoami-marquee-track">
+              <div class="whoami-marquee-item"><img alt="monday.com" src="assets/logos/monday.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Siemens" src="assets/logos/siemens-new.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Intuit" src="assets/logos/intuit.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Rubrik" src="assets/logos/rubrik.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="CATO Networks" src="assets/logos/cato-new.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Cellebrite" src="assets/logos/cellebrite-new.png" /></div>
+              <div class="whoami-marquee-item"><img alt="Remitly" src="assets/logos/remitly.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Radware" src="assets/logos/radware.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Natural Intelligence" src="assets/logos/natural-intelligence.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Nanit" src="assets/logos/nanit.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Anima" src="assets/logos/anima.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Balance" src="assets/logos/balance.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Optibus" src="assets/logos/optibus-new.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Tytocare" src="assets/logos/tytocare.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Comply 365" src="assets/logos/comply365.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="WSC Sports" src="assets/logos/wsc-sports-new.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Pango" src="assets/logos/pango.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Rakuten Viber" src="assets/logos/viber.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Redis" src="assets/logos/redis.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Stor.ai" src="assets/logos/stor.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Myop" src="assets/logos/myop.png" /></div>
+              <div class="whoami-marquee-item"><img alt="TravelBooster" src="assets/logos/travelbooster.png" /></div>
+              <!-- Duplicate for seamless loop -->
+              <div class="whoami-marquee-item"><img alt="monday.com" src="assets/logos/monday.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Siemens" src="assets/logos/siemens-new.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Intuit" src="assets/logos/intuit.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Rubrik" src="assets/logos/rubrik.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="CATO Networks" src="assets/logos/cato-new.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Cellebrite" src="assets/logos/cellebrite-new.png" /></div>
+              <div class="whoami-marquee-item"><img alt="Remitly" src="assets/logos/remitly.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Radware" src="assets/logos/radware.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Natural Intelligence" src="assets/logos/natural-intelligence.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Nanit" src="assets/logos/nanit.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Anima" src="assets/logos/anima.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Balance" src="assets/logos/balance.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Optibus" src="assets/logos/optibus-new.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Tytocare" src="assets/logos/tytocare.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Comply 365" src="assets/logos/comply365.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="WSC Sports" src="assets/logos/wsc-sports-new.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Pango" src="assets/logos/pango.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Rakuten Viber" src="assets/logos/viber.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Redis" src="assets/logos/redis.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Stor.ai" src="assets/logos/stor.svg" /></div>
+              <div class="whoami-marquee-item"><img alt="Myop" src="assets/logos/myop.png" /></div>
+              <div class="whoami-marquee-item"><img alt="TravelBooster" src="assets/logos/travelbooster.png" /></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 1b2 · OVERVIEW — 3 WAYS (context) ============= -->
+    <section class="slide" style="flex-direction:column;align-items:center;justify-content:center;padding-block:clamp(28px,5vw,72px)">
+      <div class="anim" style="text-align:center;max-width:840px">
+        <div class="eyebrow">איך עובדים עם Claude</div>
+        <h2 class="headline" style="font-size:clamp(30px,3.8vw,52px)">שלוש דרכים — <span class="accent">נכיר אחת-אחת</span></h2>
+        <p class="lead" style="margin:14px auto 0;text-align:center">אותו עוזר — שלושה מצבי עבודה. ההבדל הוא מה אתם רוצים:
+          תשובה, לעשות עבודה, או לבנות כלי. בשקפים הבאים נראה כל אחת לעומק, עם דוגמה מ-Whalo.</p>
+      </div>
+      <div class="ways3">
+        <!-- 1 · Chat -->
+        <div class="way blue anim">
+          <div class="way-top">
+            <div class="way-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-12.4 7.55L3 21l1.95-5.6A8.5 8.5 0 1 1 21 11.5z"/></svg></div>
+            <div class="way-num">1</div>
+          </div>
+          <div class="way-name">Chat</div>
+          <div class="way-sub">שיחה</div>
+          <div class="way-role">לשאול, לחקור, ללבן — כשרוצים <span class="accent">תשובה</span>.</div>
+        </div>
+        <!-- 2 · Cowork -->
+        <div class="way lime anim">
+          <div class="way-top">
+            <div class="way-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 11V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5"/><path d="M9 8h6M9 12h3.5"/><path d="M18.4 13.6a1.6 1.6 0 0 1 2.26 2.26L17.2 19.3l-3 .8.78-3 3.42-3.5z"/></svg></div>
+            <div class="way-num">2</div>
+          </div>
+          <div class="way-name">Cowork</div>
+          <div class="way-sub">עבודה משותפת</div>
+          <div class="way-role">להפיק ולערוך קבצים — <span class="accent">לעשות את העבודה</span>.</div>
+        </div>
+        <!-- 3 · Code -->
+        <div class="way lime anim">
+          <div class="way-top">
+            <div class="way-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg></div>
+            <div class="way-num">3</div>
+          </div>
+          <div class="way-name">Code</div>
+          <div class="way-sub">בנייה ואוטומציה</div>
+          <div class="way-role">לבנות כלים ולאוטמט — <span class="accent">בלי לכתוב קוד</span>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 1c · WAY 1 — CHAT ============= -->
+    <section class="slide layout-split">
+      <div class="copy">
+        <div class="eyebrow anim">מצב 1 · שיחה</div>
+        <h2 class="headline anim">Chat — <span class="accent">לשאול ולחקור</span></h2>
+        <p class="lead anim">אינטראקציות קצרות: שאלה, מחקר זריז, סיעור מוחות וליטוש רעיון.
+          התשובה נשארת בצ'אט — מהיר ובלי התחייבות.</p>
+        <ul class="bullets anim">
+          <li>לשאול, לסכם, להשוות, להתייעץ — מומחה שזמין תמיד</li>
+          <li>מחקר זריז וסיעור מוחות לפני שמתחילים לעבוד</li>
+          <li>הכי טוב כש"רוצים <span class="accent">תשובה</span>" — לא כש"רוצים שמשהו ייעשה"</li>
+        </ul>
+      </div>
+      <div class="mode-visual anim">
+        <div class="mock cl-chat" data-anim="chat">
+          <div class="mock-bar"><i></i><i></i><i></i><span class="ttl">Claude</span></div>
+          <div class="cl-convo"></div>
+          <div class="cl-composer">
+            <div class="cl-field"><span class="cl-text"></span><span class="cl-ph">איך אפשר לעזור היום?</span></div>
+            <div class="cl-row">
+              <div class="cl-tools">
+                <span class="cl-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>
+                <span class="cl-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h7"/></svg></span>
+              </div>
+              <div class="cl-right">
+                <span class="cl-model">Claude Sonnet 4 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+                <span class="cl-send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 1d · WAY 2 — COWORK ============= -->
+    <section class="slide layout-split reverse">
+      <div class="copy">
+        <div class="eyebrow anim">מצב 2 · עבודה משותפת</div>
+        <h2 class="headline anim">Cowork — <span class="accent">לעשות את העבודה</span></h2>
+        <p class="lead anim">לא רק לשאול על מסמך — לעבוד עליו: ליצור, לערוך ולנתח קבצים.
+          כאן Claude מרגיש כמו עוזר, לא צ'אטבוט.</p>
+        <ul class="bullets anim">
+          <li>לנסח, לעצב ולשכתב מסמכים וטיוטות</li>
+          <li>לנתח טבלאות, CSV ודוחות — ולהוציא תובנה</li>
+          <li>דוגמה: <span class="accent">בריף משחק → 4 וריאציות קופי לחנות</span></li>
+        </ul>
+      </div>
+      <div class="mode-visual anim">
+        <div class="mock cw-mock" data-anim="cowork">
+          <div class="mock-bar"><i></i><i></i><i></i><span class="ttl">store-copy.md</span><span class="cl-editing">Claude עובד…</span></div>
+          <div class="cw-ask"><span class="cw-ask-who">אתם</span><span class="cw-ask-text"></span></div>
+          <div class="cw-doc">
+            <div class="cw-var" data-copy="שלוש בשורה. אינסוף כיף."><div class="cw-var-h"><span class="cw-tag">וריאציה 1 · קליל</span><span class="cw-check">✓</span></div><div class="cw-copy"></div></div>
+            <div class="cw-var" data-copy="עוד מהלך אחד לניצחון!"><div class="cw-var-h"><span class="cw-tag">וריאציה 2 · אנרגטי</span><span class="cw-check">✓</span></div><div class="cw-copy"></div></div>
+            <div class="cw-var" data-copy="רגע של כיף בכל הפסקה."><div class="cw-var-h"><span class="cw-tag">וריאציה 3 · רגוע</span><span class="cw-check">✓</span></div><div class="cw-copy"></div></div>
+            <div class="cw-var" data-copy="כולם כבר משחקים — ואתם?"><div class="cw-var-h"><span class="cw-tag">וריאציה 4 · FOMO</span><span class="cw-check">✓</span></div><div class="cw-copy"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 1e · WAY 3 — CODE ============= -->
+    <section class="slide layout-split">
+      <div class="copy">
+        <div class="eyebrow anim">מצב 3 · בנייה ואוטומציה</div>
+        <h2 class="headline anim">Code — <span class="accent">לבנות כלים</span></h2>
+        <p class="lead anim">הרמה המתקדמת: לבנות אפליקציות וכלים, להריץ על הקבצים שלכם,
+          ולאוטמט תהליכים חוזרים — בלי לכתוב שורת קוד.</p>
+        <ul class="bullets anim">
+          <li>לבנות כלי שלם מתיאור במילים</li>
+          <li>להריץ על תיקיות וקבצים אמיתיים</li>
+          <li>דוגמה: <span class="accent">מסנן קו"ח שמדרג מועמדים לפי rubric</span></li>
+        </ul>
+      </div>
+      <div class="mode-visual anim">
+        <div class="mock" data-anim="code">
+          <div class="mock-bar"><i></i><i></i><i></i><span class="ttl">Claude · אפליקציה</span></div>
+          <div class="termmock-body">
+            <div class="tm-line cmd"><span class="tm-you">אתם</span><span class="tm-cmd"></span></div>
+            <div class="tm-out">
+              <div class="tm-line"><span class="tm-claude">Claude</span>על זה — בונה את הכלי…</div>
+              <div class="tm-line dim">✓ נוצר resume-screener/</div>
+              <div class="tm-line dim">✓ app/index.html · SKILL.md · data/</div>
+              <div class="tm-line ok">5 מועמדים דורגו · shortlist מוכן ✦</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 1f · COWORK vs CODE — the real difference ============= -->
+    <section class="slide" style="flex-direction:column;justify-content:center;align-items:center">
+      <div class="anim" style="text-align:center;max-width:920px">
+        <div class="eyebrow" style="display:inline-block">מצב 2 מול מצב 3 · מבט מקרוב</div>
+        <h2 class="headline" style="font-size:clamp(28px,3.6vw,50px)">Cowork מול Code — <span class="accent">ההבדל האמיתי</span></h2>
+        <p class="lead" style="margin:12px auto 0;text-align:center">שניהם <b>סוכנים</b> (agentic) על אותו מודל ואותו מנוע — שניהם עושים משימות מרובות-שלבים, מתחברים למקורות ומתזמנים. ההבדל הוא <span class="accent">תחום העבודה</span>, לא "מה אפשרי".</p>
+      </div>
+      <div class="sk-2">
+        <div class="sk-panel anim" style="border-color:rgba(111,188,250,.4);background:linear-gradient(180deg,rgba(111,188,250,.07),rgba(255,255,255,.02))">
+          <div class="sk-phead" style="color:var(--blue-soft)"><span>COWORK · עבודת ידע</span><span>🤝</span></div>
+          <div class="sk-big">להפיק תוצרים — בלי קוד</div>
+          <div class="sk-vsrows">
+            <div class="sk-vsrow"><span class="k">למי</span><span class="v">צוותים עסקיים · לא-טכניים</span></div>
+            <div class="sk-vsrow"><span class="k">איפה</span><span class="v">אפליקציית Claude לדסקטופ — בלי התקנה</span></div>
+            <div class="sk-vsrow"><span class="k">על מה</span><span class="v">מסמכים, טבלאות, דוחות, קבצים</span></div>
+            <div class="sk-vsrow"><span class="k">סביבה</span><span class="v">ארגז-חול מבודד — פשוט ובטוח</span></div>
+            <div class="sk-vsrow"><span class="k">תוצר</span><span class="v">deliverable מוכן להגשה</span></div>
+          </div>
+          <div class="sk-ex"><div class="exh">דוגמה</div><div class="exl">"מיין את תיקיית ההורדות, והפוך את צילומי הקבלות לטבלת הוצאות."</div></div>
+        </div>
+        <div class="sk-panel good anim">
+          <div class="sk-phead"><span>CLAUDE CODE · הנדסה ובנייה</span><span>🛠️</span></div>
+          <div class="sk-big">לבנות כלים שנשארים</div>
+          <div class="sk-vsrows">
+            <div class="sk-vsrow"><span class="k">למי</span><span class="v">מפתחים · משתמשי-על</span></div>
+            <div class="sk-vsrow"><span class="k">איפה</span><span class="v">טרמינל · VS Code · גם בדסקטופ</span></div>
+            <div class="sk-vsrow"><span class="k">על מה</span><span class="v">קוד, אפליקציות, Skills, סקריפטים</span></div>
+            <div class="sk-vsrow"><span class="k">סביבה</span><span class="v">גישה מלאה — git, פקודות, יותר כוח</span></div>
+            <div class="sk-vsrow"><span class="k">תוצר</span><span class="v">כלי/אוטומציה שרצים שוב ושוב</span></div>
+          </div>
+          <div class="sk-ex"><div class="exh">דוגמה</div><div class="exl">"בנה Skill שמדרג מועמדים לפי ה-rubric, ושמור אותו ל-git לכל הצוות."</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 1g · SAME TASK, TWO TOOLS ============= -->
+    <section class="slide" style="flex-direction:column;justify-content:center;align-items:center">
+      <div class="anim" style="text-align:center;max-width:920px">
+        <div class="eyebrow" style="display:inline-block">אותה משימה · שתי דרכים</div>
+        <h2 class="headline" style="font-size:clamp(28px,3.6vw,50px)">"נתח את תוצאות ה-<span class="accent">A/B pricing</span>"</h2>
+        <p class="lead" style="margin:12px auto 0;text-align:center">אותו CSV, אותו צורך — אבל כל כלי ניגש אליו אחרת. ככה רואים את ההבדל הכי בבירור.</p>
+      </div>
+      <div class="sk-2">
+        <div class="sk-panel anim" style="border-color:rgba(111,188,250,.4);background:linear-gradient(180deg,rgba(111,188,250,.07),rgba(255,255,255,.02))">
+          <div class="sk-phead" style="color:var(--blue-soft)"><span>🤝 COWORK — קבל את התוצר</span></div>
+          <div class="sk-td" style="margin-top:4px">גוררים את ה-CSV → Claude מחשב conversion · ARPU · revenue · significance, ובונה <b>דוח/דשבורד מעוצב עם המלצה</b>. אפשר אפילו לתזמן שזה יקרה <b>כל יום שני</b> אוטומטית.</div>
+          <div class="sk-vsrows" style="margin-top:14px">
+            <div class="sk-vsrow"><span class="k">הכנה</span><span class="v">אפס — גוררים קובץ</span></div>
+            <div class="sk-vsrow"><span class="k">קוד?</span><span class="v">לא</span></div>
+            <div class="sk-vsrow"><span class="k">התוצר</span><span class="v">דוח/Sheet מוכן — חד-פעמי או מתוזמן</span></div>
+          </div>
+          <div class="sk-ex"><div class="exh">מתי לבחור</div><div class="exl">צריך את התשובה עכשיו, יפה ומוגשת — בלי להקים כלום.</div></div>
+        </div>
+        <div class="sk-panel good anim">
+          <div class="sk-phead"><span>🛠️ CLAUDE CODE — בנה את הכלי</span></div>
+          <div class="sk-td" style="margin-top:4px">בונים <b>Skill קבוע</b> (<code>pricing-summary</code>) + אפליקציית דשבורד, שומרים ל-git, ומחברים ל-Mixpanel. כל הצוות מריץ אותו על <b>כל ניסוי</b> — אותו ניתוח מדויק, כל פעם.</div>
+          <div class="sk-vsrows" style="margin-top:14px">
+            <div class="sk-vsrow"><span class="k">הכנה</span><span class="v">בונים פעם אחת</span></div>
+            <div class="sk-vsrow"><span class="k">קוד?</span><span class="v">Claude כותב — אתם מתארים</span></div>
+            <div class="sk-vsrow"><span class="k">התוצר</span><span class="v">כלי שחוזר, משותף ומתחבר למקורות חיים</span></div>
+          </div>
+          <div class="sk-ex"><div class="exh">מתי לבחור</div><div class="exl">תחזרו על זה שוב ושוב, רוצים דיוק, שליטה ושיתוף בצוות.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 1h · WHICH ONE WHEN ============= -->
+    <section class="slide" style="flex-direction:column;justify-content:center;align-items:center">
+      <div class="anim" style="text-align:center;max-width:880px">
+        <div class="eyebrow" style="display:inline-block">השורה התחתונה</div>
+        <h2 class="headline" style="font-size:clamp(30px,3.8vw,52px)">אז <span class="accent">מתי כל אחד?</span></h2>
+        <p class="lead" style="margin:12px auto 0;text-align:center">אותו מודל, אותו מנוע — רק חוויה ותחום שונים. בוחרים לפי מה שצריך עכשיו.</p>
+      </div>
+      <div class="sk-3" style="max-height:min(300px,36vh);margin-top:clamp(14px,1.6vw,22px)">
+        <div class="sk-panel anim" style="justify-content:flex-start">
+          <div class="sk-tg">Chat · שיחה</div>
+          <div class="sk-tt">רוצים תשובה</div>
+          <div class="sk-td">לשאול, לחקור, ללבן רעיון. התשובה נשארת בצ'אט.</div>
+        </div>
+        <div class="sk-panel anim" style="border-color:rgba(111,188,250,.4)">
+          <div class="sk-tg" style="color:var(--blue-soft)">Cowork · עבודת ידע</div>
+          <div class="sk-tt">שמשהו ייעשה</div>
+          <div class="sk-td">לעבוד על קבצים ומסמכים, להפיק תוצר — בלי קוד, באפליקציה.</div>
+        </div>
+        <div class="sk-panel good anim">
+          <div class="sk-tg">Claude Code · בנייה</div>
+          <div class="sk-tt">לבנות כלי</div>
+          <div class="sk-td">אפליקציות, Skills ואוטומציה הנדסית — שנשארים ורצים שוב.</div>
+        </div>
+      </div>
+      <p class="note anim" style="max-width:66ch;text-align:center">💡 מתחילים מ-<span class="accent">Cowork</span> (קל ובטוח), ומשדרגים ל-<span class="accent">Claude&nbsp;Code</span> כשרוצים יותר כוח, דיוק ושליטה. <span style="color:var(--faint)">(לפי Anthropic — Cowork הוא "הכוח של Claude Code, לעבודת ידע".)</span></p>
+    </section>
+
+    <!-- ===== 2 · THE PROMISE ============================= -->
+    <section class="slide layout-two-col">
+      <div class="pingo-stage" data-animation="celebrate"></div>
+      <div class="head anim">
+        <div>
+          <div class="eyebrow">ההבטחה</div>
+          <h2 class="headline">מה תיקחו מהיום הזה</h2>
+        </div>
+        <span class="pill">5 שעות</span>
+      </div>
+      <div class="cols">
+        <div class="card anim">
+          <h3 style="margin-bottom:12px">💬 צ'אט מול קוד</h3>
+          <p class="body">תלמדו להכיר את <span class="accent">Claude צ'אט (Desktop)</span> מול
+            <span class="accent">Claude Code</span> — ומתי להשתמש בכל אחד.</p>
+          <p class="body" style="margin-top:14px;color:var(--faint)">כלל אצבע: רוצים <span class="accent">תשובה</span>? צ'אט.
+            רוצים ש<span class="accent">משהו ייבנה</span>? Code.</p>
+        </div>
+        <div class="card anim">
+          <h3 style="margin-bottom:12px">⚡ Skill משלכם</h3>
+          <p class="body">"מתכון" שמלמד את Claude לעשות משימה חוזרת בשבילכם —
+            פעם אחת מגדירים, ואז זה זמין שוב ושוב.</p>
+          <p class="body" style="margin-top:14px;color:var(--faint)">וזה נשמר אצלכם — בפעם הבאה פשוט מבקשים אותו,
+            בלי להסביר מחדש.</p>
+        </div>
+      </div>
+      <p class="note anim">וגם — ביטחון להמשיך לבד, ומאגר רעיונות מותאם לתפקיד שלכם.</p>
+    </section>
+
+    <!-- ===== 2b · EXTEND CLAUDE — Skills · Connectors · Plugins (intro) ============= -->
+    <section class="slide" style="flex-direction:column;justify-content:center;align-items:center">
+      <div class="anim" style="text-align:center;max-width:880px">
+        <div class="eyebrow" style="display:inline-block">הרחבת Claude · מה בהמשך</div>
+        <h2 class="headline" style="font-size:clamp(30px,3.8vw,52px)">שלוש דרכים <span class="accent">להרחיב</span> את Claude</h2>
+        <p class="lead" style="margin:14px auto 0;text-align:center">ראינו איך עובדים עם Claude. עכשיו נהפוך אותו ל<span class="accent">שלכם</span> —
+          ללמד אותו, לחבר אותו למקורות שלכם, ולהוסיף לו כלים מוכנים.</p>
+      </div>
+      <div class="ways3">
+        <!-- 1 · Skills -->
+        <div class="way lime anim">
+          <div class="way-top">
+            <div class="way-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5H11l-1 8.5 8.5-11.5H12l1-8.5z"/></svg></div>
+            <div class="way-num">1</div>
+          </div>
+          <div class="way-name">Skills</div>
+          <div class="way-sub">מתכונים</div>
+          <div class="way-role">ללמד את Claude משימה חוזרת — <span class="accent">פעם אחת, ולתמיד</span>.</div>
+        </div>
+        <!-- 2 · Connectors -->
+        <div class="way blue anim">
+          <div class="way-top">
+            <div class="way-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6"/><path d="M10.5 6.5l1-1a3.5 3.5 0 0 1 5 5l-1 1"/><path d="M13.5 17.5l-1 1a3.5 3.5 0 0 1-5-5l1-1"/></svg></div>
+            <div class="way-num">2</div>
+          </div>
+          <div class="way-name">Connectors</div>
+          <div class="way-sub">חיבורים</div>
+          <div class="way-role">לחבר את Claude למקורות שלכם — Gmail, Drive, Slack, Notion.</div>
+        </div>
+        <!-- 3 · Plugins -->
+        <div class="way lime anim">
+          <div class="way-top">
+            <div class="way-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 4.2a1.7 1.7 0 0 1 3.4 0c0 .35-.12.67-.3.93H16v2.6c.26-.18.58-.3.93-.3a1.7 1.7 0 0 1 0 3.4c-.35 0-.67-.12-.93-.3V16h-2.6c.18.26.3.58.3.93a1.7 1.7 0 0 1-3.4 0c0-.35.12-.67.3-.93H8v-2.7c-.26.18-.58.3-.93.3a1.7 1.7 0 0 1 0-3.4c.35 0 .67.12.93.3V5.13h2.57c-.17-.26-.27-.58-.27-.93z"/></svg></div>
+            <div class="way-num">3</div>
+          </div>
+          <div class="way-name">Plugins</div>
+          <div class="way-sub">תוספים</div>
+          <div class="way-role">להוסיף יכולות וכלים מוכנים מהקהילה — <span class="accent">בלחיצה</span>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════ SKILLS CHAPTER (ported from course) ════════════════ -->
+
+    <!-- ===== SK1 · COVER ============= -->
+    <section class="slide" style="flex-direction:column;justify-content:center;align-items:center;text-align:center">
+      <div class="anim" style="max-width:1000px">
+        <div class="eyebrow" style="display:inline-block">⚡ Claude Skills · Designers Build</div>
+        <h2 class="headline" style="font-size:clamp(34px,4.4vw,62px);margin-top:8px">היכרות עם <span class="accent">Claude&nbsp;Skills</span></h2>
+        <p class="lead" style="margin:16px auto 0;text-align:center;font-size:clamp(18px,1.7vw,24px)">תלמדו את קלוד לעבוד בדיוק כמוכם — <span class="accent">פעם אחת</span>. מהרגע הזה, הוא יודע.</p>
+      </div>
+      <div class="sk-triplet anim">
+        <div><div class="num">1</div><div class="lbl">SKILL.md</div></div>
+        <div><div class="num">∞</div><div class="lbl">תוצרים עקביים</div></div>
+        <div><div class="num">0</div><div class="lbl">הסברים חוזרים</div></div>
+      </div>
+    </section>
+
+    <!-- ===== SK2 · THE PROBLEM ============= -->
+    <section class="slide" style="flex-direction:column;justify-content:center;align-items:center">
+      <div class="sk-head anim">
+        <div class="sk-kicker">01 · הבעיה</div>
+        <h2 class="headline">כל שיחה מתחילה מ<span class="accent">אפס</span>.</h2>
+        <p class="lead">קלוד מבריק — אבל לא זוכר מי אתם, איך אתם עובדים, מה ה-voice של המוצר ומה כללי הכתיבה בצוות. כל בקשה דורשת להסביר הכל מחדש.</p>
+      </div>
+      <div class="sk-2">
+        <div class="sk-panel anim">
+          <div class="sk-phead"><span>בלי Skill</span><span>A</span></div>
+          <div class="sk-msg"><span class="role">אתם</span>"תייצר הצעת מחיר לסדנת AI לחברת Acme. 3 מפגשים, מחיר X לכל אחד. PDF בעברית RTL, פונט Heebo, הלוגו בראש, צבעי המותג, 2 נתיבים לבחירה, HTML שמייצא דרך Puppeteer, ו…"</div>
+          <div><div class="sk-time">35 דק'</div><div class="sk-time-lbl">ניסוח חוזר של פורמט והנחיות</div></div>
+        </div>
+        <div class="sk-panel good anim">
+          <div class="sk-phead"><span>עם Skill</span><span>B</span></div>
+          <div class="sk-msg"><span class="role">אתם</span>"תייצר הצעה לסדנת AI לחברת Acme."</div>
+          <div><div class="sk-time">30 שניות</div><div class="sk-time-lbl">PDF מוכן בפורמט שלי</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SK3 · ANALOGY ============= -->
+    <section class="slide" style="flex-direction:column;justify-content:center;align-items:center">
+      <div class="sk-head anim">
+        <div class="sk-kicker">02 · מה זה בעצם</div>
+        <h2 class="headline">סקיל = <span class="accent">לאמן עובד חדש</span>. פעם אחת.</h2>
+      </div>
+      <div class="sk-2">
+        <div class="anim" style="display:grid;gap:12px;align-content:center">
+          <div class="sk-panel"><div style="font-size:28px">👤</div><div><div class="sk-tt" style="font-size:18px;margin:0">עובד חדש ביום הראשון</div><div class="sk-td" style="font-size:13px">לא יודע איך הצוות עובד, מה הסגנון, מה החוקים.</div></div></div>
+          <div style="text-align:center;color:var(--faint);font-size:13px">↓ אונבורדינג · פעם אחת</div>
+          <div class="sk-panel good"><div style="font-size:28px">⚡</div><div><div class="sk-tt" style="font-size:18px;margin:0">עובד שיודע איך לעבוד</div><div class="sk-td" style="font-size:13px">מקבל משימה — יודע בדיוק מה לעשות, ללא הסברים.</div></div></div>
+        </div>
+        <div class="anim sk-panel" style="justify-content:center;gap:18px">
+          <div class="sk-big" style="font-size:22px;line-height:1.4">Skill הוא סט הוראות שמלמד את <span class="accent">קלוד</span> לטפל במשימה ספציפית — פעם אחת. ולתמיד.</div>
+          <div class="sk-td">במקום להסביר בכל שיחה איך אתם עובדים, אתם <strong style="color:var(--text)">כותבים את זה פעם אחת לקובץ SKILL.md</strong> — וקלוד טוען אותו אוטומטית בכל פעם שיש משימה רלוונטית.</div>
+          <div class="sk-ex"><div class="exl">💡 זה <strong style="color:var(--text)">אונבורדינג קבוע</strong> לקלוד — לא הסבר חד-פעמי שנעלם בסוף השיחה.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SK4 · PROMPT vs SKILL ============= -->
+    <section class="slide" style="flex-direction:column;justify-content:center;align-items:center">
+      <div class="sk-head anim">
+        <div class="sk-kicker">03 · ההבדל החשוב</div>
+        <h2 class="headline">פרומפט הוא <span class="accent">בקשה</span>. סקיל הוא <span class="accent">זיכרון</span>.</h2>
+      </div>
+      <div class="sk-2">
+        <div class="sk-panel anim">
+          <div class="sk-phead"><span>פרומפט</span><span>חד-פעמי</span></div>
+          <div class="sk-big">בקשה אחת, בשיחה אחת.</div>
+          <div class="sk-vsrows">
+            <div class="sk-vsrow"><div class="k">תוקף</div><div class="v">תקף רק לשיחה הנוכחית. נעלם בסיום.</div></div>
+            <div class="sk-vsrow"><div class="k">הפעלה</div><div class="v">ידנית — אתם כותבים אותו בכל פעם.</div></div>
+            <div class="sk-vsrow"><div class="k">עקביות</div><div class="v">תלוי בניסוח. שונה בכל שיחה.</div></div>
+            <div class="sk-vsrow"><div class="k">מתאים ל</div><div class="v">משימה חד-פעמית, מחקר, ניסוי.</div></div>
+          </div>
+        </div>
+        <div class="sk-panel good anim">
+          <div class="sk-phead"><span>סקיל</span><span>קבוע</span></div>
+          <div class="sk-big">ידע מתמשך שמופעל אוטומטית.</div>
+          <div class="sk-vsrows">
+            <div class="sk-vsrow"><div class="k">תוקף</div><div class="v">לתמיד. בכל שיחה, בכל פרויקט.</div></div>
+            <div class="sk-vsrow"><div class="k">הפעלה</div><div class="v">אוטומטית — קלוד מזהה לבד מתי.</div></div>
+            <div class="sk-vsrow"><div class="k">עקביות</div><div class="v">100%. תוצר זהה גם בין אנשים בצוות.</div></div>
+            <div class="sk-vsrow"><div class="k">מתאים ל</div><div class="v">משימה חוזרת, סטנדרט צוותי, פורמט קבוע.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SK5 · TWO TYPES ============= -->
+    <section class="slide" style="flex-direction:column;justify-content:center;align-items:center">
+      <div class="sk-head anim">
+        <div class="sk-kicker">04 · שני סוגי סקילים</div>
+        <h2 class="headline">בכל הסקילים שתפגשו — יש <span class="accent">רק שני סוגים</span>.</h2>
+      </div>
+      <div class="sk-2">
+        <div class="sk-panel anim">
+          <div class="sk-tn">01</div><div class="sk-tg">Context Skill · פשוט</div>
+          <div class="sk-tt">יודע פורמט — ובונה אותו</div>
+          <div class="sk-td">נותן לקלוד <strong style="color:var(--text)">ידע על הפורמט שלך</strong> — תבנית, לוגו, צבעים, מבנה. מקבל בקשה ומחזיר תוצר מוכן. עובד בכל פלטפורמה.</div>
+          <div class="sk-ex"><div class="exh">דוגמה · workshop-proposal</div><div class="exl">הצעת מחיר לסדנת AI · PDF מעוצב בעברית · לוגו, צבעי מותג, 2 נתיבים</div></div>
+        </div>
+        <div class="sk-panel good anim">
+          <div class="sk-tn">02</div><div class="sk-tg">Action Skill · מורכב</div>
+          <div class="sk-tt">גם מבצע — לא רק יודע</div>
+          <div class="sk-td">סקיל ux-writing משודרג — קורא frame ב-<strong style="color:var(--text)">Figma דרך MCP</strong>, ומעדכן את ה-copy ישירות במסך. רץ ב-Claude Code.</div>
+          <div class="sk-ex"><div class="exh">דוגמה · ux-writing + Figma MCP</div><div class="exl">מקבל frame → מתקן את כל ה-copy על המסך ומחזיר מסך מעודכן — אוטומטית</div></div>
+        </div>
+      </div>
+      <p class="note anim" style="text-align:center">מתחילים מ-<span class="accent">Context</span> — פשוט ומיידי. משדרגים ל-<span class="accent">Action</span> כשרוצים שהסקיל גם יבצע: יעדכן Figma, יריץ קוד, יחבר API.</p>
+    </section>
+
+    <!-- ===== SK5b · TWO TYPES — DEFINITION TABLE ============= -->
+    <section class="slide sk-deftable-slide" style="flex-direction:column;justify-content:center;align-items:center">
+      <div class="sk-head anim" style="text-align:center">
+        <div class="sk-kicker">04 · שני סוגי סקילים</div>
+        <h2 class="headline">שני סוגי Skills — <span class="accent">ההגדרה</span></h2>
+      </div>
+      <div class="sk-deftable anim">
+        <table>
+          <colgroup><col><col class="half"><col class="half"></colgroup>
+          <thead>
+            <tr>
+              <th></th>
+              <th class="ctx"><span class="en">Context Skill</span> <span class="he">· פשוט</span></th>
+              <th class="act"><span class="en">Action Skill</span> <span class="he">· מורכב</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th class="rk">מה זה</th>
+              <td class="ctx">נותן ל-Claude <em>ידע על הפורמט שלך</em> — טון, מבנה, rubric, תבנית</td>
+              <td class="act">גם <em>מבצע</em> — מתחבר למקור אמיתי, קורא וכותב דרך <b>MCP</b></td>
+            </tr>
+            <tr>
+              <th class="rk">קלט</th>
+              <td class="ctx">טקסט/קבצים שמדביקים בשיחה</td>
+              <td class="act">מקור חי: Drive · Notion · Slack · Mixpanel · web</td>
+            </tr>
+            <tr>
+              <th class="rk">פלט</th>
+              <td class="ctx">תוצר מובנה בפורמט קבוע</td>
+              <td class="act">תוצר + פעולה (כותב חזרה, מסנכרן, מתזמן)</td>
+            </tr>
+            <tr>
+              <th class="rk">רץ ב</th>
+              <td class="ctx">כל פלטפורמה (Chat / Desktop)</td>
+              <td class="act">בעיקר <b>Claude Code</b> + connectors</td>
+            </tr>
+            <tr>
+              <th class="rk">מתי</th>
+              <td class="ctx">מתחילים מכאן — מיידי, ידע טהור</td>
+              <td class="act">משדרגים לכאן כשרוצים שהסקיל <em>יפעל</em></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="sk-defrule anim">הכלל: מתחילים מ-<span class="ctx">Context</span> (פשוט, מיידי), ומשדרגים ל-<span class="act">Action</span>
+        כשרוצים שהסקיל גם יעדכן Figma, ימשוך מ-Mixpanel, יכתוב ל-Notion או ירוץ מתוזמן.</p>
+    </section>
+
+    <!-- ===== SK6 · FOLDER · context ============= -->
+    <section class="slide" style="flex-direction:column;justify-content:center;align-items:center">
+      <div class="sk-head anim">
+        <div class="sk-kicker">05 · מבנה תיקייה · context skill</div>
+        <h2 class="headline">תיקייה עם <span class="accent">קובץ אחד חובה</span>. השאר אופציונלי.</h2>
+      </div>
+      <div class="sk-2" style="align-items:stretch">
+        <div class="sk-tree anim">
+          <div class="head">workshop-proposal/</div>
+          <div class="row must">📄 SKILL.md<span class="note">YAML + הוראות</span><span class="tag">חובה</span></div>
+          <div class="row" style="margin-top:10px;color:var(--blue-soft)">📁 references/<span class="note">ידע, תבניות, נכסים</span><span class="tag">אופציונלי</span></div>
+          <div class="row opt">└ html-template-base.html</div>
+          <div class="row opt">└ value-propositions.md</div>
+          <div class="row" style="margin-top:10px;color:var(--blue-soft)">📁 scripts/<span class="note">קוד להרצה</span><span class="tag">אופציונלי</span></div>
+          <div class="row opt">└ docx-template.js</div>
+        </div>
+        <div class="sk-rules anim">
+          <div class="sk-rule"><div class="n">1</div><div><div class="t">SKILL.md תמיד בשורש</div><div class="d">לא בתת-תיקייה. בלעדיו קלוד לא ידע שהסקיל קיים.</div></div></div>
+          <div class="sk-rule"><div class="n">2</div><div><div class="t">שאר הקבצים — Lazy Load</div><div class="d"><code>references/</code> ו-<code>scripts/</code> נטענים <strong style="color:var(--text)">רק כשצריך</strong>. שמרו עליהם קצרים.</div></div></div>
+          <div class="sk-rule"><div class="n">3</div><div><div class="t">scripts רצים בפועל</div><div class="d">קוד <code>.py</code>/<code>.js</code>/<code>.sh</code> רץ באמת ב-Claude Code — להוצאת עבודה דטרמיניסטית מה-LLM.</div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SK7 · VIDEO · workshop-proposal ============= -->
+    <section class="slide sk-video">
+      <video src="workshop-proposal-demo.mp4" loop muted playsinline preload="auto"></video>
+      <div class="vcap">🎬 workshop-proposal · בפעולה</div>
+    </section>
+
+    <!-- ===== SK8 · FOLDER · action ============= -->
+    <section class="slide" style="flex-direction:column;justify-content:center;align-items:center">
+      <div class="sk-head anim">
+        <div class="sk-kicker">06 · מבנה תיקייה · action skill</div>
+        <h2 class="headline">סקיל עם <span class="accent">ידיים</span> — Figma MCP.</h2>
+      </div>
+      <div class="sk-2" style="align-items:stretch">
+        <div class="sk-tree teal anim">
+          <div class="head">viber-ux-copy/</div>
+          <div class="row must">📄 SKILL.md<span class="note">YAML + הוראות</span><span class="tag">חובה</span></div>
+          <div class="row" style="margin-top:10px;color:var(--lime)">📁 references/<span class="note">style guide + audit</span><span class="tag">אופציונלי</span></div>
+          <div class="row opt">└ viber-style-guide.md</div>
+          <div class="row opt">└ audit-template.md</div>
+          <div class="row" style="margin-top:10px;color:var(--lime)">📁 scripts/<span class="note">קוד להרצה</span><span class="tag">אופציונלי</span></div>
+          <div class="row opt">└ apply-figma-fixes.js</div>
+          <div class="row opt">└ score-copy.py</div>
+          <div class="row" style="margin-top:10px;color:var(--lime)">📁 assets/<span class="note">תבניות · לוגואים</span><span class="tag">אופציונלי</span></div>
+          <div class="row opt">└ viber-logo.svg</div>
+        </div>
+        <div class="sk-rules anim">
+          <div class="sk-rule"><div class="n">1</div><div><div class="t">SKILL.md תמיד בשורש</div><div class="d">בלעדיו קלוד לא ידע שהסקיל קיים.</div></div></div>
+          <div class="sk-rule"><div class="n">2</div><div><div class="t">references — מה שהסקיל קורא</div><div class="d">ה-style guide ותבנית ה-audit. הידע שמנחה את התיקון.</div></div></div>
+          <div class="sk-rule"><div class="n">3</div><div><div class="t">scripts — הידיים</div><div class="d"><code>apply-figma-fixes.js</code> מעדכן את ה-copy ישירות במסך דרך ה-MCP.</div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SK9 · VIDEO · viber-ux-copy ============= -->
+    <section class="slide sk-video">
+      <video src="viber-skill-demo.mp4" loop muted playsinline preload="auto"></video>
+      <div class="vcap">🎬 viber-ux-copy · בפעולה</div>
+    </section>
+
+    <!-- ===== SK10b · WHERE KNOWLEDGE COMES FROM (3 ways) ============= -->
+    <section class="slide" style="flex-direction:column;justify-content:center;align-items:center">
+      <div class="sk-head anim" style="text-align:center">
+        <div class="sk-kicker">מאיפה הסקיל "יודע"</div>
+        <h2 class="headline">ה-Knowledge הוא <span class="accent">שלכם</span> — אבל לא צריך לכתוב אותו</h2>
+        <p class="lead" style="font-size:clamp(15px,1.4vw,20px)">המהות היא הידע הייחודי שלכם. אתם <span class="accent">מביאים</span> אותו — ו-Claude מנסח אותו ל-Skill. שלוש דרכים:</p>
+      </div>
+      <div class="kb-3">
+        <div class="kb-card anim">
+          <div class="kb-top">
+            <div class="kb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v5h5"/><path d="M7 3h8l5 5v11a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M9 13h6M9 17h4"/></svg></div>
+            <div class="kb-n">1</div>
+          </div>
+          <div class="kb-t">כבר יש מסמך</div>
+          <div class="kb-when">יש לכם style guide, מדיניות או template קיים.</div>
+          <div class="kb-do">גוררים את הקובץ ל-<b>references/</b> — וזהו.</div>
+        </div>
+        <div class="kb-card anim">
+          <div class="kb-top">
+            <div class="kb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h11"/></svg></div>
+            <div class="kb-n">2</div>
+          </div>
+          <div class="kb-t">יש דוגמאות טובות</div>
+          <div class="kb-when">עשיתם את זה 2-3 פעמים ואהבתם את התוצאה.</div>
+          <div class="kb-do">נותנים את הדוגמאות — Claude <b>מחלץ את הדפוס</b>.</div>
+        </div>
+        <div class="kb-card anim">
+          <div class="kb-top">
+            <div class="kb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a7 7 0 0 1 4 12.7V18a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.3A7 7 0 0 1 12 3z"/><path d="M9 22h6"/></svg></div>
+            <div class="kb-n">3</div>
+          </div>
+          <div class="kb-t">זה רק בראש שלכם</div>
+          <div class="kb-when">"ככה אנחנו עובדים" — לא כתוב בשום מקום.</div>
+          <div class="kb-do">מתארים במילים — Claude <b>מנסח את זה לסקיל</b>.</div>
+        </div>
+      </div>
+      <p class="kb-note anim">מה <span class="yours">חייבים להביא</span>: הטון, ה-rubric, ה-style guide, המדיניות שלכם ·
+        מה <span class="claude">Claude כבר יודע</span>: מגבלות החנויות, נוסחאות, ידע כללי.</p>
+    </section>
+
+    <!-- ===== SK11 · WHEN TO BUILD ============= -->
+    <section class="slide" style="flex-direction:column;justify-content:center;align-items:center">
+      <div class="sk-head anim">
+        <div class="sk-kicker">08 · מתי כדאי</div>
+        <h2 class="headline">מתי לבנות Skill — <span class="accent">ומתי לא</span>.</h2>
+        <p class="lead">לא כל משימה ראויה ל-Skill. הכלל: אם עשיתם אותה <strong style="color:var(--text)">שלוש פעמים</strong> — הגיע הזמן לתעד.</p>
+      </div>
+      <div class="sk-2 sk-when">
+        <div class="sk-panel anim yes">
+          <div class="wh">בנו Skill כאשר…</div>
+          <ul>
+            <li>המשימה חוזרת על עצמה ברוב הפרויקטים</li>
+            <li>יש voice/טון קבוע שכותבים בו שוב ושוב</li>
+            <li>הסבר הדרישות לוקח יותר זמן מהביצוע</li>
+            <li>רוצים שהתוצר ייראה זהה גם בין חברי הצוות</li>
+          </ul>
+        </div>
+        <div class="sk-panel anim no">
+          <div class="wh">דלגו על Skill כאשר…</div>
+          <ul>
+            <li>זו משימה חד-פעמית או מחקרית</li>
+            <li>הדרישות משתנות בין בקשה לבקשה</li>
+            <li>מספיק prompt קצר בשיחה הנוכחית</li>
+            <li>אין עדיין דוגמת פלט שאתם מרוצים ממנה</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SK12 · BUILD · TWO WAYS ============= -->
+    <section class="slide" style="flex-direction:column;justify-content:center;align-items:center">
+      <div class="sk-head anim">
+        <div class="sk-kicker">09 · איך בונים סקיל?</div>
+        <h2 class="headline">שתי דרכים. <span class="accent">שתיהן עובדות</span>.</h2>
+      </div>
+      <div class="sk-2">
+        <div class="sk-panel anim">
+          <div class="sk-hg">דרך 1 · מהמעשה</div>
+          <div class="sk-ht">תעשה — תסכם.</div>
+          <div class="sk-hd">עשיתם תהליך. ניהלתם שיחה. <strong>אהבתם את התוצאה.</strong> ועכשיו רוצים שזה יחזור — עוטפים את מה שעבד, וזה הופך לסקיל.</div>
+          <div class="sk-foot">→ דוגמה אמיתית בשקף הבא</div>
+        </div>
+        <div class="sk-panel good anim">
+          <div class="sk-hg">דרך 2 · מהמחשבה</div>
+          <div class="sk-ht">תתאר — תייצר.</div>
+          <div class="sk-hd">מתארים <strong>במילים פשוטות</strong> מה הסקיל צריך לעשות — תוך וידוא שכל <strong>6 האלמנטים</strong> נמצאים:
+            <div class="sk-chips"><span class="sk-chip">Purpose</span><span class="sk-chip">Triggers</span><span class="sk-chip">Method</span><span class="sk-chip">Org Context</span><span class="sk-chip">Output</span><span class="sk-chip">MCP &amp; Tools</span></div>
+          </div>
+          <div class="sk-foot">→ הדרך שאני אוהב · אחריו דוגמה חיה</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SK13 · BUILD METHOD 1 · /feature-brief ============= -->
+    <section class="slide" style="flex-direction:column;justify-content:center;align-items:center">
+      <div class="sk-head anim">
+        <div class="sk-kicker">10 · דרך 1 · דוגמה: /feature-brief</div>
+        <h2 class="headline">לא <span class="accent">כותבים</span> סקיל. <span class="accent">בונים</span> אותו.</h2>
+      </div>
+      <div class="anim" style="display:grid;grid-template-columns:280px 1fr;gap:20px;width:100%;max-width:1040px;margin-top:24px;align-items:stretch">
+        <div class="sk-rail">
+          <div class="sk-stepmini"><span class="smn">01</span><div class="smt">תעשו</div><div class="smd">2 שיחות באותו פורמט.</div></div>
+          <div class="sk-stepmini"><span class="smn">02</span><div class="smt">תזהו דפוס</div><div class="smd">5 שדות זהים, אותו סדר.</div></div>
+          <div class="sk-stepmini"><span class="smn">03</span><div class="smt">תבקשו לסכם</div><div class="smd">"תסכם לסקיל." קלוד יוצר SKILL.md.</div></div>
+          <div class="sk-stepmini"><span class="smn">04</span><div class="smt">תבדקו</div><div class="smd">בשיחה חדשה — <code>/feature-brief</code>.</div></div>
+        </div>
+        <div class="mock">
+          <div class="mock-bar"><i></i><i></i><i></i><span class="ttl">Claude · אפליקציה</span></div>
+          <div class="termmock-body" style="font-size:13px;line-height:1.7">
+            <div class="tm-line cmd"><span class="tm-you">אתם</span>brief לפיצ'ר חיפוש חכם · onboarding redesign — אותו פורמט</div>
+            <div class="tm-line dim">● Problem · Users · Solution · Metrics · Risks</div>
+            <div class="tm-line cmd" style="margin-top:6px"><span class="tm-you">אתם</span>תסכם את 2 השיחות לסקיל</div>
+            <div class="tm-line"><span class="tm-claude">Claude</span>זיהיתי דפוס: 5 שדות זהים, אותו סדר ✓</div>
+            <div class="tm-line dim">✓ יוצר .claude/skills/feature-brief/SKILL.md</div>
+            <div class="tm-line ok">מוכן · בפעם הבאה: /feature-brief &lt;name&gt; ✦</div>
+          </div>
+        </div>
+      </div>
+      <p class="note anim" style="text-align:center">סקיל טוב לא <strong style="color:var(--text)">נכתב</strong> — הוא <span class="accent">מתגלה</span>. הכללה של דפוסים שכבר עבדו לכם.</p>
+    </section>
+
+    <!-- ===== SK14 · 6 ELEMENTS ============= -->
+    <section class="slide" style="flex-direction:column;justify-content:center;align-items:center">
+      <div class="sk-head anim">
+        <div class="sk-kicker">+ המבנה שאני אוהב</div>
+        <h2 class="headline">מה נכנס לכל סקיל <span class="accent">שאני בונה</span>?</h2>
+        <p class="lead">שישה מרכיבים — המתכון מאחורי כל סקיל. לא חובה את כולם, אבל ככה אני בונה.</p>
+      </div>
+      <div class="sk-3">
+        <div class="sk-elem anim"><div class="cn">01</div><div class="ct">Purpose</div><div class="cd">למה הסקיל קיים — המשימה האחת שלו.</div></div>
+        <div class="sk-elem anim"><div class="cn">02</div><div class="ct">Triggers</div><div class="cd">מתי קלוד יודע להשתמש בו — כללי ההפעלה ב-frontmatter.</div></div>
+        <div class="sk-elem anim"><div class="cn">03</div><div class="ct">Method</div><div class="cd">ה-frameworks והפלייבוקים שהוא מריץ.</div></div>
+        <div class="sk-elem anim"><div class="cn">04</div><div class="ct">Org Context</div><div class="cd">מה הוא יודע עלינו — design system, החלטות, קוד.</div></div>
+        <div class="sk-elem anim"><div class="cn">05</div><div class="ct">Output</div><div class="cd">מה הוא מייצר — מסכים, specs, דוחות.</div></div>
+        <div class="sk-elem anim"><div class="cn">06</div><div class="ct">MCP &amp; Tools</div><div class="cd">ידיים חיצוניות — Figma · JIRA · Slack.</div></div>
+      </div>
+    </section>
+
+    <!-- ===== SK15 · DEMO · /skill-creator ============= -->
+    <section class="slide" style="flex-direction:column;justify-content:center;align-items:center">
+      <div class="sk-head anim">
+        <div class="sk-kicker">דמו · /skill-creator</div>
+        <h2 class="headline">קלוד <span class="accent">בונה את הסקיל איתכם</span> — שאלה-שאלה.</h2>
+      </div>
+      <div class="anim mock" style="width:100%;max-width:920px;margin-top:24px">
+        <div class="mock-bar"><i></i><i></i><i></i><span class="ttl">Claude · אפליקציה</span></div>
+        <div class="termmock-body" style="font-size:14px;line-height:1.85">
+          <div class="tm-line cmd"><span class="tm-you">אתם</span>/skill-creator</div>
+          <div class="tm-line"><span class="tm-claude">Claude</span>נבנה את הסקיל יחד, צעד-צעד 🛠</div>
+          <div class="tm-line"><span class="tm-claude">Claude</span>מה הסקיל צריך לעשות?</div>
+          <div class="tm-line cmd"><span class="tm-you">אתם</span>audit ל-UX copy בפיגמה לפי ה-style שלנו, ולתקן על המסך</div>
+          <div class="tm-line dim" style="margin-top:4px">✓ Purpose · ✓ Triggers · ✓ Method · ✓ Org Context · ✓ Output · ✓ MCP (Figma)</div>
+          <div class="tm-line ok">נוצר ux-writing/SKILL.md · 6/6 אלמנטים ✦</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SK16 · CATALOGS ============= -->
+    <section class="slide" style="flex-direction:column;justify-content:center;align-items:center">
+      <div class="sk-head anim">
+        <div class="sk-kicker">11 · מאיפה מורידים סקילים מוכנים</div>
+        <h2 class="headline">שלושה <span class="accent">קטלוגים</span> שכדאי להכיר.</h2>
+      </div>
+      <div class="sk-3">
+        <div class="sk-cat anim"><div class="cn">01 · גלובלי</div><div class="cname">skills.sh</div><div class="curl">skills.sh</div><div class="cd">האתר שאני הכי אוהב. דירוג קהילה לכל סקיל, תיאור ברור, קטגוריות נוחות.</div><div class="ctag">מובחרים · מדורגים</div></div>
+        <div class="sk-cat anim"><div class="cn">02 · GitHub</div><div class="cname">Awesome Claude Skills</div><div class="curl">github.com/…/awesome-claude-skills</div><div class="cd">רשימה קהילתית ב-GitHub. הכי גדולה, הכי מתעדכנת, פתוחה לתרומות.</div><div class="ctag">קהילה · פתוח</div></div>
+        <div class="sk-cat anim"><div class="cn">03 · ישראל</div><div class="cname">Skills IL</div><div class="curl">skills-il.com</div><div class="cd">הקטלוג הישראלי. מעל 160 סקילים בעברית, רובם רלוונטיים לשוק המקומי.</div><div class="ctag">עברית · ישראלי</div></div>
+      </div>
+      <p class="note anim" style="text-align:center">חשוב: לפני שמתקינים סקיל מבחוץ — <strong style="color:var(--text)">קוראים את ה-SKILL.md שלו</strong>.</p>
+    </section>
+
+    <!-- ===== SK17 · SCOPE ============= -->
+    <section class="slide" style="flex-direction:column;justify-content:center;align-items:center">
+      <div class="sk-head anim">
+        <div class="sk-kicker">12 · איפה הסקיל גר?</div>
+        <h2 class="headline">פרויקט אחד — או <span class="accent">כל המחשב</span>.</h2>
+        <p class="lead">מריצים את Claude Code בטרמינל — אז יש <strong style="color:var(--text)">שני מקומות</strong> שהסקיל יכול לגור בהם. הבחירה משנה <strong style="color:var(--text)">מתי הוא נדלק</strong>.</p>
+      </div>
+      <div class="sk-2">
+        <div class="sk-panel anim">
+          <div class="sk-sc-label">01 · Project-level</div>
+          <div class="sk-sc-title">סקיל לפרויקט</div>
+          <div class="sk-path">&lt;project&gt;/.claude/skills/NAME/</div>
+          <div class="sk-sc-desc">חי בתוך תיקיית הפרויקט. <strong>נדלק רק כשמריצים <code>claude</code> משם.</strong> נכנס ל-git — כל הצוות מקבל אותו אוטומטית.</div>
+          <div class="sk-when2"><b>מתי:</b> סקילים ספציפיים לקודבייס — ה-design system הזה, conventions של הצוות.</div>
+        </div>
+        <div class="sk-panel good anim">
+          <div class="sk-sc-label">02 · User-level · Global</div>
+          <div class="sk-sc-title">סקיל גלובלי</div>
+          <div class="sk-path">~/.claude/skills/NAME/</div>
+          <div class="sk-sc-desc">חי בתיקיית הבית. <strong>נדלק בכל פרויקט</strong> שתפתחו. אישי לכם — לא נוסע עם הקוד.</div>
+          <div class="sk-when2"><b>מתי:</b> סקילים אישיים לכל מקום — feature-brief, ideation, ה-style האישי שלכם.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SK17b · 12 SKILLS ACCORDION (interactive) ============= -->
+    <section class="slide acc-slide" style="flex-direction:column;justify-content:center;align-items:center">
+      <div class="sk-head anim" style="text-align:center">
+        <div class="sk-kicker">13 · הספרייה שלכם</div>
+        <h2 class="headline">12 Skills <span class="accent">לפרויקטים שלכם</span></h2>
+        <p class="lead" style="font-size:clamp(14px,1.3vw,18px)">לכל צוות — סקיל <span style="color:var(--blue-soft)">Context</span> וסקיל <span class="accent">Action</span>. לחצו על סקיל כדי לראות פירוט והפרומפט ליצירה.</p>
+      </div>
+      <div class="acc-wrap anim" id="accWrap"></div>
+    </section>
+
+    <!-- ===== SK18 · CLOSING ============= -->
+    <section class="slide" style="flex-direction:column;justify-content:center;align-items:center;text-align:center">
+      <div class="sk-head anim">
+        <h2 class="headline" style="font-size:clamp(28px,3.6vw,50px)">סקיל הוא ההבדל בין AI ש<span class="accent">עונה</span><br>ל-AI ש<span class="accent">עובד בשבילכם</span>.</h2>
+        <p class="lead">שלושה צעדים שתעשו — כבר השבוע.</p>
+      </div>
+      <div class="sk-3 sk-close-steps">
+        <div class="sk-cstep anim"><div class="csn">1</div><div class="cst">זהו משימה</div><div class="csd">משימה שעשיתם 3+ פעמים ברבעון. microcopy, תיקון קופי, empty states.</div></div>
+        <div class="sk-cstep anim"><div class="csn">2</div><div class="cst">תעשו, ואז סכמו</div><div class="csd">בצעו אותה עם קלוד פעמיים. תבקשו: "סכם את זה ל-SKILL.md".</div></div>
+        <div class="sk-cstep anim"><div class="csn">3</div><div class="cst">העלו ובדקו</div><div class="csd">zip → Claude.ai → שלושה prompts לבדיקה. שתפו עם הצוות.</div></div>
+      </div>
+    </section>
+
+    <!-- ===== 12 · MICRO-TRY 3 ============= -->
+    <section class="slide layout-split practice">
+      <div class="copy">
+        <span class="pill anim">✋ ידיים על המקלדת · 8 דק'</span>
+        <h2 class="headline anim" style="margin-top:18px">בנו Skill זעיר</h2>
+        <ol class="steps anim">
+          <li>תארו ל-Claude משימה חוזרת אחת שלכם</li>
+          <li>בקשו: "תבנה לי את זה כ-Skill"</li>
+          <li>הפעילו את ה-Skill שנוצר — וראו אותו עובד</li>
+        </ol>
+      </div>
+      <div class="pingo-stage" data-animation="nod"></div>
+    </section>
+
+    <!-- ===== 13 · SECTION DIVIDER → PRACTICE ============= -->
+    <section class="slide layout-section">
+      <div class="copy">
+        <div class="index anim">→</div>
+        <div class="eyebrow anim">עכשיו תורכם</div>
+        <h2 class="headline anim">בונים — באמת</h2>
+        <p class="lead anim">עד עכשיו רק טעמנו. עכשיו ~שעתיים שבהן אתם בונים,
+          ואנחנו מסתובבים לעזור לכל מי שנתקע.</p>
+      </div>
+      <div class="pingo-stage" data-animation="present"></div>
+    </section>
+
+    <!-- ===== 14 · GUIDED BUILD ============= -->
+    <section class="slide layout-split reverse practice">
+      <div class="copy">
+        <span class="pill anim">🛠️ בנייה מודרכת · ~45 דק'</span>
+        <h2 class="headline anim" style="margin-top:18px">כולנו בונים את אותו כלי</h2>
+        <ol class="steps anim">
+          <li>[נמלא ביחד: מה הכלי המשותף שבונים]</li>
+          <li>שלב-שלב, כולם באותו קצב</li>
+          <li>מריצים אותו על המחשב ורואים שעובד</li>
+        </ol>
+      </div>
+      <div class="pingo-stage" data-animation="present"></div>
+    </section>
+
+    <!-- ===== 15 · BRING YOUR OWN ============= -->
+    <section class="slide layout-two-col practice">
+      <div class="pingo-stage" data-animation="celebrate"></div>
+      <div class="head anim">
+        <div>
+          <div class="eyebrow">ההזדמנות שלכם</div>
+          <h2 class="headline">עכשיו על משימה אמיתית שלכם</h2>
+        </div>
+        <span class="pill">🚀 ~45 דק'</span>
+      </div>
+      <div class="cols">
+        <div class="card anim">
+          <p class="body">קחו את המשימה החוזרת שהבאתם מהבית והפכו אותה לכלי
+            או ל-Skill. מנטור מסתובב לעזור לכל אחד.</p>
+        </div>
+        <div class="card anim">
+          <p class="body">אין רעיון? בחרו מהדוגמאות לתפקיד שלכם.
+            המטרה: דבר אחד קטן שעובד — לא מושלם.</p>
+        </div>
+      </div>
+      <p class="note anim">בלי אינטגרציות חיות מסוכנות — בונים על חומר בטוח.</p>
+    </section>
+
+    <!-- ===== 16 · PLAYBOOK ============= -->
+    <section class="slide layout-two-col">
+      <div class="pingo-stage" data-animation="peek"></div>
+      <div class="head anim">
+        <div>
+          <div class="eyebrow">מאגר רעיונות</div>
+          <h2 class="headline">דברים להתחיל מחר בבוקר</h2>
+        </div>
+      </div>
+      <div class="cols">
+        <div class="card anim">
+          <p class="body" style="line-height:2.1">• סיכום אוטומטי של פגישות<br>
+            • בריף בוקר מכל המקורות<br>
+            • הפיכת דוחות ל-PDF מעוצב<br>
+            • ניסוח חוזר של מיילים נפוצים</p>
+        </div>
+        <div class="card anim">
+          <p class="body" style="line-height:2.1">• מסנן / מדרג מסמכים<br>
+            • מחקר מתחרים מהיר<br>
+            • טבלאות וניתוח מתוך אקסל<br>
+            • כלי קטן לכל תהליך ידני חוזר</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 17 · CLOSING ============= -->
+    <!-- ===== APPENDIX A · PROJECTS WE BUILT ============= -->
+    <section class="slide" style="flex-direction:column;justify-content:center;align-items:center">
+      <div class="anim" style="text-align:center;max-width:900px">
+        <div class="eyebrow" style="display:inline-block">נספח · הדוגמאות שלנו</div>
+        <h2 class="headline" style="font-size:clamp(28px,3.6vw,50px)">הפרויקטים <span class="accent">שבנינו</span></h2>
+        <p class="lead" style="margin:10px auto 0;text-align:center">6 פרויקטים לדוגמה — אחד לכל צוות. כל אחד יושב בתיקייה אמיתית עם דאטה, ובחלקם כבר בנינו את ה-Skills.</p>
+      </div>
+      <div class="proj-grid">
+        <div class="proj-card anim">
+          <div class="proj-top"><span class="proj-emoji">🎨</span><span class="proj-team">Art</span></div>
+          <div class="proj-name">art-asset-brief</div>
+          <div class="proj-path">projects/art-asset-brief/</div>
+          <div class="proj-skills"><span class="proj-chip">asset-brief · Context</span><span class="proj-chip act">asset-librarian · Action</span></div>
+        </div>
+        <div class="proj-card anim">
+          <div class="proj-top"><span class="proj-emoji">💰</span><span class="proj-team">Finance</span></div>
+          <div class="proj-name">finance-regulation-scanner</div>
+          <div class="proj-path">projects/finance-regulation-scanner/</div>
+          <div class="proj-skills"><span class="proj-chip">reg-gap-report · Context</span><span class="proj-chip act">reg-watch · Action</span></div>
+        </div>
+        <div class="proj-card built anim">
+          <div class="proj-top"><span class="proj-emoji">👥</span><span class="proj-team">HR</span></div>
+          <div class="proj-name">hr-resume-screener</div>
+          <div class="proj-path">projects/hr-resume-screener/</div>
+          <div class="proj-skills"><span class="proj-chip on">✓ resume-screener</span><span class="proj-chip on">✓ candidate-sync</span></div>
+        </div>
+        <div class="proj-card built anim">
+          <div class="proj-top"><span class="proj-emoji">📣</span><span class="proj-team">Marketing</span></div>
+          <div class="proj-name">marketing-aso-copy</div>
+          <div class="proj-path">projects/marketing-aso-copy/</div>
+          <div class="proj-skills"><span class="proj-chip on">✓ aso-copy</span><span class="proj-chip act">aso-from-brief · Action</span></div>
+        </div>
+        <div class="proj-card anim">
+          <div class="proj-top"><span class="proj-emoji">📊</span><span class="proj-team">Monetization</span></div>
+          <div class="proj-name">monetization-pricing-summary</div>
+          <div class="proj-path">projects/monetization-pricing-summary/</div>
+          <div class="proj-skills"><span class="proj-chip">pricing-summary · Context</span><span class="proj-chip act">pricing-pull · Action</span></div>
+        </div>
+        <div class="proj-card anim">
+          <div class="proj-top"><span class="proj-emoji">🚀</span><span class="proj-team">Product</span></div>
+          <div class="proj-name">product-daily-brief</div>
+          <div class="proj-path">projects/product-daily-brief/</div>
+          <div class="proj-skills"><span class="proj-chip">daily-brief · Context</span><span class="proj-chip act">morning-brief · Action</span></div>
+        </div>
+      </div>
+      <p class="note anim" style="max-width:76ch;text-align:center">✓ = כבר בנוי בתיקייה (SKILL.md + references) · השאר מוכנים לבנייה בסדנה &nbsp;·&nbsp; <span class="accent">Context</span> = ידע · <span style="color:var(--blue-soft)">Action</span> = עם MCP</p>
+    </section>
+
+    <!-- ===== APPENDIX B · RESOURCES ============= -->
+    <section class="slide" style="flex-direction:column;justify-content:center;align-items:center">
+      <div class="anim" style="text-align:center;max-width:900px">
+        <div class="eyebrow" style="display:inline-block">נספח · חומרי עזר</div>
+        <h2 class="headline" style="font-size:clamp(28px,3.6vw,50px)">כל ה<span class="accent">חומרים</span> במקום אחד</h2>
+        <p class="lead" style="margin:10px auto 0;text-align:center">כל מה שבנינו בסדנה — לחיצה נפתחת ישירות.</p>
+      </div>
+      <div class="res-grid">
+        <a class="res-card anim" href="https://app.notion.com/p/38ef0d817dc48160afeac018cb6972bd" target="_blank" rel="noopener">
+          <div class="res-ic">📊</div>
+          <div class="res-body"><div class="res-h">Notion · Skills by Project</div><div class="res-d">12 Skills · טבלאות Cowork ו-Claude Code · מדריך הכנה</div></div>
+          <div class="res-go">↗</div>
+        </a>
+        <a class="res-card anim" href="https://docs.google.com/spreadsheets/d/1n94g5lCs4aBSkO3RZpopXXZ0aOYhK-nu84g5tJ9HLxQ/edit" target="_blank" rel="noopener">
+          <div class="res-ic">📈</div>
+          <div class="res-body"><div class="res-h">Google Sheet · A/B Pricing</div><div class="res-d">דאטה לדוגמה ל-pricing-summary · Reef Rumble</div></div>
+          <div class="res-go">↗</div>
+        </a>
+        <a class="res-card anim" href="cowork-vs-code-demo.md" target="_blank" rel="noopener">
+          <div class="res-ic">📄</div>
+          <div class="res-body"><div class="res-h">Cowork מול Code · דמו</div><div class="res-d">אותה משימה בשני הכלים — צעד-אחר-צעד</div></div>
+          <div class="res-go">↗</div>
+        </a>
+        <a class="res-card anim" href="workshop-hub.html" target="_blank" rel="noopener">
+          <div class="res-ic">🗂️</div>
+          <div class="res-body"><div class="res-h">Workshop Hub</div><div class="res-d">מרכז כל החומרים, המצגת והפרויקטים</div></div>
+          <div class="res-go">↗</div>
+        </a>
+        <a class="res-card anim" onclick="go(37);return false;">
+          <div class="res-ic">🗂️</div>
+          <div class="res-body"><div class="res-h">הפרויקטים שבנינו</div><div class="res-d">projects/ — 6 תיקיות עם דאטה ו-Skills</div></div>
+          <div class="res-go">→</div>
+        </a>
+        <a class="res-card anim" onclick="go(30);return false;">
+          <div class="res-ic">⚡</div>
+          <div class="res-body"><div class="res-h">ה-Skills שבנינו (קבצים אמיתיים)</div><div class="res-d">HR: resume-screener + candidate-sync · Marketing: aso-copy</div></div>
+          <div class="res-go">→</div>
+        </a>
+      </div>
+      <p class="note anim" style="max-width:76ch;text-align:center">📁 הקבצים המקומיים נפתחים מתיקיית הסדנה — <span style="font-family:ui-monospace,Menlo,monospace">workshop-hub.html · projects/ · cowork-vs-code-demo.md</span></p>
+    </section>
+
+    <section class="slide layout-closing">
+      <div class="pingo-stage" data-animation="celebrate"></div>
+      <div class="eyebrow anim">דברים לקחת</div>
+      <h2 class="headline anim">3 מהלכים <span class="accent">לזכור</span></h2>
+      <p class="lead anim">תארו במילים פשוטות · תנו לו לפעול על הקבצים שלכם ·
+        משימה חוזרת? בקשו ממנו לבנות Skill.</p>
+      <div class="foot anim">Whalo · AI Week — בואו נבנה 🐧</div>
+    </section>
+
+  </main>
+
+  <!-- chrome -->
+  <button id="theme-toggle" class="theme-toggle" aria-label="החלפת מצב בהיר / כהה">
+    <span class="ico"></span><span class="lbl">כהה</span>
+  </button>
+  <div class="hint" id="hint">→ / ← ניווט · T מצב · F מסך מלא</div>
+  <div class="counter" id="counter">01</div>
+  <div class="dots" id="dots"></div>
+  <nav class="nav">
+    <button id="prev" aria-label="הקודם">‹</button>
+    <button id="next" aria-label="הבא">›</button>
+  </nav>
+  <div class="fx-grain"></div>
+
+  <!-- three.js vendored LOCALLY → the deck works fully offline (no CDN / no internet) -->
+  <script>window.PINGO_DRACO_PATH = 'vendor/draco/';</script>
+  <script src="vendor/three.min.js"></script>
+  <script src="vendor/GLTFLoader.js"></script>
+  <script src="vendor/DRACOLoader.js"></script>
+  <!-- model (sets the global), then the engine -->
+  <script src="pingo-model.js"></script>
+  <script src="pingo-engine.js"></script>
+
+  <!-- deck navigation + enter choreography -->
+  <script>
+    const slides = [...document.querySelectorAll('.slide')];
+    const dotsEl = document.getElementById('dots');
+    const counter = document.getElementById('counter');
+    const progress = document.getElementById('progress');
+    const hint = document.getElementById('hint');
+    let i = 0;
+
+    slides.forEach((_, n) => {
+      const d = document.createElement('i');
+      d.addEventListener('click', () => go(n));
+      dotsEl.appendChild(d);
+    });
+    const dots = [...dotsEl.children];
+    let revealT = null;
+
+    function go(n) {
+      i = Math.max(0, Math.min(slides.length - 1, n));
+      slides.forEach((s, k) => {
+        const on = k === i;
+        s.classList.toggle('active', on);
+        if (!on) {
+          s.classList.remove('is-in');
+          s.querySelectorAll('.anim.shown').forEach((e) => e.classList.remove('shown'));
+        }
+      });
+      dots.forEach((d, k) => d.classList.toggle('on', k === i));
+      counter.textContent = String(i + 1).padStart(2, '0') + ' / ' + String(slides.length).padStart(2, '0');
+      progress.style.width = ((i + 1) / slides.length * 100) + '%';
+
+      // staggered enter-reveal of the active slide's children
+      const active = slides[i];
+      const els = active.querySelectorAll('.anim');
+      els.forEach((el, k) => { el.classList.remove('shown'); el.style.transitionDelay = (70 + k * 75) + 'ms'; });
+      requestAnimationFrame(() => requestAnimationFrame(() => active.classList.add('is-in')));
+      // safety net: force-show if the transition didn't complete (throttled tab etc.)
+      clearTimeout(revealT);
+      revealT = setTimeout(() => { els.forEach((el) => el.classList.add('shown')); }, 1300);
+    }
+    function next() { go(i + 1); }
+    function prev() { go(i - 1); }
+
+    document.getElementById('next').addEventListener('click', next);
+    document.getElementById('prev').addEventListener('click', prev);
+    addEventListener('keydown', (e) => {
+      if (['ArrowRight', ' ', 'PageDown'].includes(e.key)) { next(); e.preventDefault(); }
+      else if (['ArrowLeft', 'PageUp'].includes(e.key)) { prev(); e.preventDefault(); }
+      else if (e.key === 'Home') go(0);
+      else if (e.key === 'End') go(slides.length - 1);
+      else if (e.key.toLowerCase() === 'f') { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); }
+      if (hint) hint.style.opacity = '0';
+    });
+    setTimeout(() => { if (hint) hint.style.opacity = '0'; }, 5000);
+    hint.style.transition = 'opacity .6s ease';
+
+    /* ---- light / dark theme toggle (persists across reloads) ---- */
+    const root = document.documentElement;
+    const toggle = document.getElementById('theme-toggle');
+    const tlbl = toggle.querySelector('.lbl');
+    function applyTheme(mode) {
+      root.classList.toggle('light', mode === 'light');
+      tlbl.textContent = mode === 'light' ? 'בהיר' : 'כהה';
+    }
+    let savedTheme = 'dark';
+    try { savedTheme = localStorage.getItem('whalo-workshop-theme') || 'dark'; } catch (e) {}
+    applyTheme(savedTheme);
+    function toggleTheme() {
+      const nextMode = root.classList.contains('light') ? 'dark' : 'light';
+      applyTheme(nextMode);
+      try { localStorage.setItem('whalo-workshop-theme', nextMode); } catch (e) {}
+    }
+    toggle.addEventListener('click', toggleTheme);
+    addEventListener('keydown', (e) => { if (e.key.toLowerCase() === 't') toggleTheme(); });
+
+    /* ---- magnetic nav buttons (haptic micro-interaction) ---- */
+    document.querySelectorAll('.nav button').forEach((b) => {
+      b.addEventListener('pointermove', (e) => {
+        const r = b.getBoundingClientRect();
+        const x = e.clientX - (r.left + r.width / 2);
+        const y = e.clientY - (r.top + r.height / 2);
+        b.style.transform = `translate(${x * 0.25}px, ${y * 0.25}px) scale(1.06)`;
+      });
+      b.addEventListener('pointerleave', () => { b.style.transform = ''; });
+    });
+
+    /* ---- chapter deep-link: ?s=N in the URL, or postMessage from the hub shell ---- */
+    function initialSlide() {
+      try { const m = (location.search || '').match(/[?&]s=(\d+)/); if (m) return Math.min(slides.length - 1, +m[1]); } catch (e) {}
+      return 0;
+    }
+    addEventListener('message', (e) => {
+      if (e.data && typeof e.data.gotoSlide === 'number') go(e.data.gotoSlide);
+    });
+    go(initialSlide());
+  </script>
+
+  <!-- auto play/pause full-screen video slides when they become active (+ click to toggle) -->
+  <script>
+    (function(){
+      const vids = [...document.querySelectorAll('.slide video')];
+      if(!vids.length) return;
+      function sync(){
+        vids.forEach(function(v){
+          const slide = v.closest('.slide');
+          if(slide && slide.classList.contains('active')){
+            if(v.paused){ try{ v.currentTime = 0; const p = v.play(); if(p&&p.catch) p.catch(function(){}); }catch(e){} }
+          } else { try{ v.pause(); }catch(e){} }
+        });
+      }
+      const obs = new MutationObserver(sync);
+      document.querySelectorAll('.slide').forEach(function(s){ obs.observe(s,{attributes:true,attributeFilter:['class']}); });
+      vids.forEach(function(v){ v.addEventListener('click', function(){ v.paused ? v.play() : v.pause(); }); });
+      setTimeout(sync, 500);
+    })();
+  </script>
+
+  <!-- live animated mocks: Chat composer · Cowork edit · Code terminal (auto-loop while active) -->
+  <script>
+    (function(){
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const sleep = ms => reduce ? Promise.resolve() : new Promise(r => setTimeout(r, ms));
+      const $ = (el, s) => el.querySelector(s);
+      async function type(el, text, gen, getGen, cps){
+        if(reduce){ el.textContent = text; return true; }
+        el.textContent = '';
+        for(let i=0; i<text.length; i++){
+          if(getGen() !== gen) return false;
+          el.textContent = text.slice(0, i+1);
+          await sleep(cps);
+        }
+        return getGen() === gen;
+      }
+      const ok = (gen, getGen) => getGen() === gen;
+
+      // ---------- CHAT ----------
+      const Q = 'מה הטרנד הכי חם ב-ASO למשחקי match-3?';
+      const A = 'שלושה כיוונים בולטים כרגע: כותרות עם מספרים, הוקים של "עוד תור אחד", ו-A/B על האייקון. רוצה שאפרט לכל אחד?';
+      async function runChat(root, gen, getGen){
+        const convo=$(root,'.cl-convo'), field=$(root,'.cl-field'), text=$(root,'.cl-text'), send=$(root,'.cl-send');
+        convo.innerHTML=''; text.textContent=''; field.classList.remove('typing','has-text'); send.classList.remove('on');
+        await sleep(550); if(!ok(gen,getGen)) return;
+        field.classList.add('typing');
+        if(!await type(text, Q, gen, getGen, 46)) return;
+        field.classList.remove('typing'); field.classList.add('has-text'); send.classList.add('on');
+        await sleep(450); if(!ok(gen,getGen)) return;
+        const ub=document.createElement('div'); ub.className='cm-bubble cm-user anim-in'; ub.textContent=Q; convo.appendChild(ub);
+        requestAnimationFrame(()=>ub.classList.add('in'));
+        text.textContent=''; field.classList.remove('has-text'); send.classList.remove('on');
+        await sleep(550); if(!ok(gen,getGen)) return;
+        const ab=document.createElement('div'); ab.className='cm-bubble cm-ai anim-in';
+        ab.innerHTML='<span class="cm-who">Claude</span><span class="cl-dots"><span></span><span></span><span></span></span>';
+        convo.appendChild(ab); requestAnimationFrame(()=>ab.classList.add('in'));
+        await sleep(1150); if(!ok(gen,getGen)) return;
+        ab.innerHTML='<span class="cm-who">Claude</span><span class="cl-ans"></span>';
+        if(!await type($(ab,'.cl-ans'), A, gen, getGen, 20)) return;
+        await sleep(2700);
+      }
+
+      // ---------- COWORK · ask → produce artifact ----------
+      const CW_ASK = 'מהבריף — תפיק 4 וריאציות קופי לחנות';
+      async function runCowork(root, gen, getGen){
+        const ask=$(root,'.cw-ask'), askText=$(root,'.cw-ask-text'),
+              badge=$(root,'.cl-editing'), vars=[...root.querySelectorAll('.cw-var')];
+        // reset
+        askText.textContent=''; ask.classList.remove('typing'); badge.classList.remove('on');
+        vars.forEach(v=>{ v.classList.remove('in','typing','done'); $(v,'.cw-copy').textContent=''; });
+        await sleep(550); if(!ok(gen,getGen)) return;
+        // 1 · the ask
+        ask.classList.add('typing');
+        if(!await type(askText, CW_ASK, gen, getGen, 44)) return;
+        ask.classList.remove('typing');
+        await sleep(420); if(!ok(gen,getGen)) return;
+        // 2 · Claude works → produces each variation
+        badge.classList.add('on');
+        await sleep(380); if(!ok(gen,getGen)) return;
+        for(const v of vars){
+          if(!ok(gen,getGen)) return;
+          v.classList.add('in');
+          await sleep(300); if(!ok(gen,getGen)) return;
+          v.classList.add('typing');
+          if(!await type($(v,'.cw-copy'), v.dataset.copy, gen, getGen, 32)) return;
+          v.classList.remove('typing'); v.classList.add('done');
+          await sleep(380);
+        }
+        badge.classList.remove('on');
+        await sleep(2600);
+      }
+
+      // ---------- CODE ----------
+      async function runCode(root, gen, getGen){
+        const body=$(root,'.termmock-body'), cmd=$(root,'.tm-cmd'),
+              outs=[...root.querySelectorAll('.tm-out .tm-line')];
+        cmd.textContent=''; outs.forEach(l=>l.classList.remove('show')); body.classList.remove('typing');
+        await sleep(500); if(!ok(gen,getGen)) return;
+        body.classList.add('typing');
+        if(!await type(cmd, 'בנה מסנן קו"ח שמדרג מועמדים לפי rubric', gen, getGen, 44)) return;
+        body.classList.remove('typing');
+        await sleep(480); if(!ok(gen,getGen)) return;
+        for(const l of outs){ if(!ok(gen,getGen)) return; l.classList.add('show'); await sleep(650); }
+        await sleep(2500);
+      }
+
+      // ---------- manager ----------
+      const RUN = { chat:runChat, cowork:runCowork, code:runCode };
+      const mocks = [...document.querySelectorAll('[data-anim]')];
+      mocks.forEach(m => m._gen = 0);
+      const isActive = m => { const s = m.closest('.slide'); return s && s.classList.contains('active'); };
+      function startMock(m){
+        m._gen++; const gen = m._gen; const getGen = () => m._gen;
+        if(reduce){ RUN[m.dataset.anim](m, gen, getGen); return; }
+        (async function loop(){
+          while(getGen() === gen && isActive(m)){
+            await RUN[m.dataset.anim](m, gen, getGen);
+            if(getGen() !== gen) break;
+          }
+        })();
+      }
+      const stopMock = m => { m._gen++; };
+      const obs = new MutationObserver(muts => {
+        muts.forEach(mu => {
+          const s = mu.target, m = s.querySelector && s.querySelector('[data-anim]');
+          if(!m) return;
+          s.classList.contains('active') ? startMock(m) : stopMock(m);
+        });
+      });
+      document.querySelectorAll('.slide').forEach(s => { if(s.querySelector('[data-anim]')) obs.observe(s, {attributes:true, attributeFilter:['class']}); });
+      setTimeout(() => { mocks.forEach(m => { if(isActive(m)) startMock(m); }); }, 650);
+    })();
+  </script>
+
+  <!-- 12 project skills · interactive accordion (single-open) -->
+  <script>
+    (function(){
+      const wrap = document.getElementById('accWrap');
+      if(!wrap) return;
+      const PROJECTS = [
+        { proj:'art-asset-brief', team:'Art', skills:[
+          { type:'ctx', name:'asset-brief', what:'בריף ויזואלי עקבי לנכס חדש',
+            kb:'style-guide: פלטה, פרופורציות, naming, פורמט ייצוא', mcp:'— ידע טהור',
+            prompt:'תבנה Skill בשם asset-brief שמקבל תיאור נכס חדש ומחזיר בריף ויזואלי עקבי עם ה-style guide שלנו. בלי כלים חיצוניים.' },
+          { type:'act', name:'asset-librarian', what:'מקטלג את ספריית הנכסים ב-Drive',
+            kb:'אותו style-guide + taxonomy לתיוג', mcp:'Google Drive',
+            prompt:'תבנה Skill בשם asset-librarian שמתחבר ל-Drive, מתייג כל נכס, מזהה פערים, ומפיק בריף לנכס חדש. כותב קטלוג חזרה ל-Drive.' } ] },
+        { proj:'finance-regulation-scanner', team:'Finance', skills:[
+          { type:'ctx', name:'reg-gap-report', what:'דוח פערים מדורג מול המדיניות',
+            kb:'מדרג חומרה + תבנית דוח (ב-SKILL.md)', mcp:'— ידע טהור',
+            prompt:'תבנה Skill בשם reg-gap-report שמקבל רגולציה חדשה + מדיניות קיימת ומחזיר דוח פערים מדורג לפי חומרה עם המלצת עדכון. מסמך — לא ייעוץ משפטי.' },
+          { type:'act', name:'reg-watch', what:'קורא רגולציה מהאינטרנט ומשווה',
+            kb:'אותו מדרג חומרה + תבנית דוח', mcp:'web + Google Drive',
+            prompt:'תבנה Skill בשם reg-watch שקורא דף רגולציה מ-URL, מושך מדיניות מ-Drive, משווה, ומפיק דוח פערים. כותב חזרה ומסמן פערים קריטיים.' } ] },
+        { proj:'hr-resume-screener', team:'HR', skills:[
+          { type:'ctx', name:'resume-rubric', what:'דירוג מועמדים לפי rubric אחיד',
+            kb:'ה-rubric: קריטריונים, משקלים, סולם 1-10', mcp:'— ידע טהור',
+            prompt:'תבנה Skill בשם resume-rubric שמקבל משרה + קו"ח ומדרג כל מועמד לפי rubric אחיד עם ציון ונימוק. shortlist מדורג בטבלה.' },
+          { type:'act', name:'candidate-sync', what:'מסנכרן ומדרג מ-Notion',
+            kb:'אותו rubric', mcp:'Notion',
+            prompt:'תבנה Skill בשם candidate-sync שמושך מועמדים ממסד Candidates ב-Notion, מדרג, וכותב חזרה Score · Recommendation · Reasoning.' } ] },
+        { proj:'marketing-aso-copy', team:'Marketing', skills:[
+          { type:'ctx', name:'aso-copy', what:'4 וריאציות קופי לחנות',
+            kb:'הגדרת טונים + מגבלות תווים של החנויות', mcp:'— ידע טהור',
+            prompt:'תבנה Skill בשם aso-copy שמקבל בריף משחק ומחזיר 3-4 וריאציות קופי לחנות בטונים שונים, עם ספירת תווים מאומתת מול מגבלות החנות.' },
+          { type:'act', name:'aso-from-brief', what:'קורא בריף מ-Drive ומפיק קופי',
+            kb:'אותם טונים + מגבלות תווים', mcp:'Google Drive',
+            prompt:'תבנה Skill בשם aso-from-brief שקורא בריף מ-Drive, מפיק 4 וריאציות קופי עם ספירת תווים, וכותב store-copy.md חזרה ל-Drive.' } ] },
+        { proj:'monetization-pricing-summary', team:'Monetization', skills:[
+          { type:'ctx', name:'pricing-summary', what:'סיכום ניסוי A/B מ-CSV',
+            kb:'הנוסחאות: conversion, ARPU, הכנסה, מובהקות', mcp:'— ידע טהור',
+            prompt:'תבנה Skill בשם pricing-summary שמקבל תוצאות A/B (CSV), מחשב conversion/ARPU/הכנסה לכל וריאנט, מדגיש זוכה וממליץ מחיר.' },
+          { type:'act', name:'pricing-pull', what:'מושך את הניסוי מ-Mixpanel',
+            kb:'אותן נוסחאות + פורמט סיכום', mcp:'Mixpanel',
+            prompt:'תבנה Skill בשם pricing-pull שמתחבר ל-Mixpanel, מושך את ניסוי התמחור האחרון, מחשב, מסכם מי ניצח וממליץ מחיר. כותב חזרה ל-Notion/Slack.' } ] },
+        { proj:'product-daily-brief', team:'Product', skills:[
+          { type:'ctx', name:'daily-brief', what:'דיג׳סט בוקר מ-Slack+Notion',
+            kb:'פורמט הדיג׳סט והסקשנים', mcp:'— ידע טהור',
+            prompt:'תבנה Skill בשם daily-brief שמקבל Slack + Notion ומחזיר דיג׳סט בוקר ממוקד: הכי חשוב, חסמים, עדכונים, משימות, יומן. קצר ל-30 שניות.' },
+          { type:'act', name:'morning-brief', what:'רץ אוטומטית כל בוקר',
+            kb:'אותו פורמט דיג׳סט', mcp:'Slack + Notion + תזמון',
+            prompt:'תבנה Skill בשם morning-brief שאוסף מ-#reef-rumble-product וה-Notion של הספרינט, מפיק דיג׳סט בוקר, ומתוזמן לרוץ כל בוקר.' } ] },
+      ];
+      const CHEV = '<svg class="acc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+      const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+      function accHTML(s){
+        const badge = s.type==='ctx' ? 'CONTEXT' : 'ACTION';
+        return '<div class="acc '+s.type+'">'+
+          '<button class="acc-head" aria-expanded="false">'+
+            '<span class="acc-badge">'+badge+'</span>'+
+            '<span class="acc-name">'+esc(s.name)+'</span>'+
+            '<span class="acc-what">'+esc(s.what)+'</span>'+ CHEV +
+          '</button>'+
+          '<div class="acc-detail"><div class="acc-detail-in"><div class="acc-body">'+
+            '<div class="acc-row"><span class="acc-k">עושה</span><span class="acc-v">'+esc(s.what)+'</span></div>'+
+            '<div class="acc-row"><span class="acc-k">Knowledge</span><span class="acc-v">'+esc(s.kb)+'</span></div>'+
+            '<div class="acc-row"><span class="acc-k">MCP</span><span class="acc-v"><b>'+esc(s.mcp)+'</b></span></div>'+
+            '<div class="acc-row"><span class="acc-k">פרומפט</span><span class="acc-v prompt">'+esc(s.prompt)+'</span></div>'+
+          '</div></div></div></div>';
+      }
+      // two columns: 3 projects each
+      [[0,3],[3,6]].forEach(function(range){
+        const col = document.createElement('div'); col.className='acc-col';
+        PROJECTS.slice(range[0],range[1]).forEach(function(p){
+          const h = document.createElement('div'); h.className='acc-proj';
+          h.innerHTML = esc(p.proj)+' <span class="pteam">· '+esc(p.team)+'</span>';
+          col.appendChild(h);
+          p.skills.forEach(function(s){ const d=document.createElement('div'); d.innerHTML=accHTML(s); col.appendChild(d.firstChild); });
+        });
+        wrap.appendChild(col);
+      });
+      // single-open accordion
+      const accs = [...wrap.querySelectorAll('.acc')];
+      accs.forEach(function(acc){
+        const head = acc.querySelector('.acc-head');
+        head.addEventListener('click', function(){
+          const willOpen = !acc.classList.contains('open');
+          accs.forEach(function(a){ a.classList.remove('open'); a.querySelector('.acc-head').setAttribute('aria-expanded','false'); });
+          if(willOpen){ acc.classList.add('open'); head.setAttribute('aria-expanded','true'); }
+        });
+      });
+    })();
+  </script>
+
+  <!-- live green-screen chroma-key: plays the green mascot video and keys out green to transparent -->
+  <script>
+    (function(){
+      const v = document.getElementById('kwVideo'), c = document.getElementById('kwCanvas');
+      if(!v || !c) return;
+      const ctx = c.getContext('2d', { willReadFrequently:true });
+      const PW = 1100;
+      let running = false, rvfcId = 0, rafId = 0;
+      function sizeCanvas(){ if(v.videoWidth){ c.width = Math.min(PW, v.videoWidth); c.height = Math.round(c.width * v.videoHeight / v.videoWidth); } }
+      v.addEventListener('loadedmetadata', sizeCanvas);
+      function process(){
+        if(!running) return;
+        if(v.readyState >= 2){
+          if(!c.width || c.width !== Math.min(PW, v.videoWidth)) sizeCanvas();
+          ctx.drawImage(v, 0, 0, c.width, c.height);
+          try{
+            const img = ctx.getImageData(0, 0, c.width, c.height), d = img.data;
+            for(let i=0;i<d.length;i+=4){
+              const r=d[i], g=d[i+1], b=d[i+2];
+              // background/ spill is green = high G, low R AND low B. The blue belly keeps high B → protected.
+              if(g > 90 && g > r*1.25 && g > b*1.25 && b < 120){ d[i+3]=0; }
+              else if(g > 70 && g > r*1.12 && g > b*1.12 && b < 130){ const m=(r+b)>>1; d[i+1]=m; if(d[i+3]>140) d[i+3]=140; }
+            }
+            ctx.putImageData(img, 0, 0);
+          }catch(e){}
+        }
+        if(v.requestVideoFrameCallback) rvfcId = v.requestVideoFrameCallback(process);
+        else rafId = requestAnimationFrame(process);
+      }
+      function start(){ if(running) return; running=true; try{ v.currentTime=0; }catch(e){} const p=v.play(); if(p&&p.catch) p.catch(()=>{}); process(); }
+      function stop(){ running=false; try{ v.pause(); }catch(e){} if(rafId) cancelAnimationFrame(rafId); if(rvfcId && v.cancelVideoFrameCallback) v.cancelVideoFrameCallback(rvfcId); }
+      const slide = c.closest('.slide');
+      new MutationObserver(()=>{ slide.classList.contains('active') ? start() : stop(); }).observe(slide, { attributes:true, attributeFilter:['class'] });
+      setTimeout(()=>{ if(slide.classList.contains('active')) start(); }, 700);
+    })();
+  </script>
+</body>
+</html>

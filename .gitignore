@@ -1,0 +1,21 @@
+# OS / editor junk
+.DS_Store
+Thumbs.db
+*.bak
+
+# Secrets — never commit real env files
+.env
+**/.env
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Large demo videos (exceed GitHub's 100MB limit; not used by the deck)
+viber-skill-demo.mp4
+workshop-proposal-demo.mp4
+
+# Local-only helpers / scratch
+.preview-server.js
+.removed-slides-*.html
+**/settings.local.json

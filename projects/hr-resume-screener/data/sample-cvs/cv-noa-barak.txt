@@ -1,0 +1,15 @@
+נועה ברק
+אנליסטית מוצר · Game Economy
+
+ניסיון:
+2021–2024 — Product Analyst, חברת gaming (free-to-play), 3.5 שנים
+  • ניתוח התנהגות שחקנים ב-Mixpanel ו-Amplitude
+  • תכנון והרצת ניסויי A/B על חבילות in-app ומחירים
+  • הובלת rebalance של כלכלת מטבעות שהעלה ARPDAU ב-9%
+  • שאילתות SQL מורכבות על Snowflake; Python לניתוח (pandas)
+
+2019–2021 — BI Analyst, סטארטאפ SaaS
+  • דשבורדים ב-Looker, מודלים לתחזית churn
+
+השכלה: B.A. כלכלה, אוניברסיטת תל אביב
+שפות: עברית (שפת אם), אנגלית (שוטף)

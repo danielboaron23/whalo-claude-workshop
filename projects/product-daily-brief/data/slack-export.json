@@ -1,0 +1,11 @@
+{
+  "_comment": "ייצוא מדומה מ-Slack — מדמה מה שה-connector היה מושך מהערוצים הרלוונטיים.",
+  "channel": "#reef-rumble-product",
+  "messages": [
+    { "from": "דנה (QA)", "time": "08:12", "text": "באג קריטי: קריסה במסך הליגות ב-Android 14. ~6% מהמשתמשים מושפעים. פתחתי REEF-2231." },
+    { "from": "יוסי (Backend)", "time": "08:40", "text": "השרת החדש של ה-matchmaking עלה ל-prod, latency ירד ב-30%. צריך לעקוב היום." },
+    { "from": "מירב (Design)", "time": "09:05", "text": "המוקאפים החדשים למסך החנות מוכנים ב-Figma, מחכה לאישור מוצר לפני פיתוח." },
+    { "from": "טל (Data)", "time": "09:20", "text": "D1 retention ירד ב-2% מאז העדכון האחרון — שווה לבדוק את ה-onboarding." },
+    { "from": "רן (Marketing)", "time": "09:31", "text": "הקמפיין בטיקטוק יוצא מחר, צריך שה-store copy החדש יאושר היום." }
+  ]
+}

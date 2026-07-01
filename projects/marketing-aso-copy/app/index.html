@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>וריאציות קופי לחנות · Whalo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap');
+  :root{ --bg:#19135f; --bg2:#0e0a2c; --hair:rgba(255,255,255,.12); --text:#fff;
+    --muted:rgba(255,255,255,.62); --faint:rgba(255,255,255,.42); --lime:#c6f24e; --blue:#6fbcfa; --azure:#1e9cf5;
+    --ok:#9be15d; --over:#ff8f7a; --ease:cubic-bezier(.32,.72,0,1); --font:'Heebo',sans-serif; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{ font-family:var(--font); color:var(--text); min-height:100vh; line-height:1.5; padding:clamp(20px,4vw,52px);
+    background:radial-gradient(900px 600px at 85% -10%, rgba(30,156,245,.3), transparent 60%),
+      radial-gradient(700px 500px at 0% 110%, rgba(198,242,78,.1), transparent 55%), linear-gradient(180deg,var(--bg),var(--bg2)); }
+  .wrap{ max-width:920px; margin:0 auto; }
+  .eyebrow{ display:inline-block; padding:6px 14px; border-radius:999px; font-size:11px; font-weight:700; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--lime); background:rgba(198,242,78,.1); border:1px solid rgba(198,242,78,.3); }
+  h1{ font-size:clamp(26px,4vw,42px); font-weight:800; letter-spacing:-.02em; margin:14px 0 8px; }
+  .sub{ color:var(--muted); font-size:15px; }
+  .brief{ margin-top:16px; padding:16px 18px; border-radius:14px; background:rgba(255,255,255,.05); border:1px solid var(--hair); font-size:14px; color:var(--muted); }
+  .brief b{ color:var(--text); }
+  .row{ display:flex; align-items:center; gap:12px; margin:26px 2px 14px; color:var(--faint); font-size:12px; letter-spacing:.12em; text-transform:uppercase; font-weight:700; } .row::after{ content:""; flex:1; height:1px; background:var(--hair); }
+  .grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; } @media (max-width:680px){ .grid{ grid-template-columns:1fr; } }
+  .card{ position:relative; border-radius:18px; padding:22px; background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03));
+    border:1px solid var(--hair); box-shadow:0 30px 70px -46px rgba(0,0,0,.7), inset 0 1px 1px rgba(255,255,255,.12); transition:transform .5s var(--ease); }
+  .card:hover{ transform:translateY(-3px); }
+  .card::before{ content:""; position:absolute; inset:-7px; z-index:-1; border-radius:22px; background:rgba(255,255,255,.04); border:1px solid var(--hair); }
+  .tone{ display:inline-block; font-size:12px; font-weight:800; padding:4px 12px; border-radius:999px; color:#0b1b2b; background:linear-gradient(180deg,var(--lime),#b6e63c); }
+  .field{ margin-top:14px; } .field .lbl{ font-size:11px; color:var(--faint); letter-spacing:.08em; text-transform:uppercase; display:flex; justify-content:space-between; }
+  .field .val{ font-size:15px; margin-top:3px; }
+  .field .val.title{ font-size:19px; font-weight:800; }
+  .cc{ font-variant-numeric:tabular-nums; font-weight:700; }
+  .cc.ok{ color:var(--ok); } .cc.over{ color:var(--over); }
+  .copy{ margin-top:16px; font-family:var(--font); font-size:13px; font-weight:700; cursor:pointer; width:100%;
+    padding:9px; border-radius:10px; background:rgba(255,255,255,.07); border:1px solid var(--hair); color:var(--text); transition:.2s; }
+  .copy:hover{ background:rgba(198,242,78,.15); }
+  footer{ margin-top:28px; color:var(--faint); font-size:12px; text-align:center; line-height:1.7; }
+  code{ background:rgba(255,255,255,.08); padding:2px 7px; border-radius:6px; font-size:12px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <span class="eyebrow">Marketing · Whalo</span>
+    <h1>וריאציות קופי לחנות</h1>
+    <p class="sub">מבריף של משחק → כמה גרסאות מוכנות ל-A/B, כל אחת בטון אחר.</p>
+    <div class="brief">🎮 משחק: <b>Reef Rumble</b> · Match-3 תחרותי · קהל 25-45 · טון חברותי-צבעוני<br>
+      מגבלות חנות: Title ≤ <b>30</b> · Subtitle ≤ <b>30</b> · Short ≤ <b>80</b> תווים</div>
+
+    <div class="row">4 וריאציות (ע״י ה-Skill aso-copy)</div>
+    <div class="grid" id="grid"></div>
+
+    <footer>מקור: <code>data/game-brief.md</code> · Skill: <code>aso-copy</code> · ספירת התווים מחושבת חי ומאומתת מול המגבלות.</footer>
+  </div>
+<script>
+  const LIMITS = { title:30, subtitle:30, short:80 };
+  const VARS = [
+    { tone:"תחרותי", title:"Reef Rumble: Match & Win", subtitle:"Live PvP Match-3 Leagues", short:"Battle real players in live Match-3 ocean tournaments — win weekly prizes!" },
+    { tone:"משעשע", title:"Reef Rumble 🐧", subtitle:"Match-3 with a splash", short:"Dive into a colorful ocean of Match-3 fun with Pingo the penguin!" },
+    { tone:"רגוע", title:"Reef Rumble", subtitle:"Relax & Match Underwater", short:"Easy, breezy Match-3 puzzles in a calm, colorful underwater world." },
+    { tone:"ישיר", title:"Reef Rumble Match-3 PvP", subtitle:"Match. Compete. Win.", short:"Free Match-3 puzzle with live PvP leagues and weekly prizes." },
+  ];
+  const grid = document.getElementById('grid');
+  function fieldHTML(lbl, key, val, isTitle){
+    const n = [...val].length, lim = LIMITS[key], cls = n<=lim?'ok':'over';
+    return `<div class="field"><div class="lbl"><span>${lbl}</span><span class="cc ${cls}">${n}/${lim}</span></div>
+      <div class="val ${isTitle?'title':''}">${val}</div></div>`;
+  }
+  VARS.forEach((v,i)=>{
+    const el=document.createElement('div'); el.className='card';
+    el.innerHTML = `<span class="tone">${v.tone}</span>
+      ${fieldHTML('Title','title',v.title,true)}
+      ${fieldHTML('Subtitle','subtitle',v.subtitle)}
+      ${fieldHTML('Short description','short',v.short)}
+      <button class="copy" data-i="${i}">📋 העתק את כל הגרסה</button>`;
+    grid.appendChild(el);
+  });
+  grid.addEventListener('click', e=>{
+    const b=e.target.closest('.copy'); if(!b) return;
+    const v=VARS[b.dataset.i];
+    navigator.clipboard?.writeText(`Title: ${v.title}\nSubtitle: ${v.subtitle}\nShort: ${v.short}`);
+    const o=b.textContent; b.textContent='✓ הועתק'; setTimeout(()=>b.textContent=o,1400);
+  });
+</script>
+</body>
+</html>

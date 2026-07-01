@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>הכנה לסדנת Claude Code · Whalo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap');
+  :root{
+    --bg:#271e96; --bg-mid:#19135f; --bg2:#0e0a2c; --hair:rgba(255,255,255,.12);
+    --text:#fff; --muted:rgba(255,255,255,.66); --faint:rgba(255,255,255,.42);
+    --lime:#c6f24e; --blue:#6fbcfa; --azure:#1e9cf5;
+    --ease:cubic-bezier(.32,.72,0,1); --font:'Heebo',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{ font-family:var(--font); color:var(--text); min-height:100vh; line-height:1.55;
+    background:
+      radial-gradient(1100px 700px at 85% -10%, rgba(30,156,245,.34), transparent 60%),
+      radial-gradient(800px 560px at 0% 112%, rgba(198,242,78,.12), transparent 55%),
+      linear-gradient(180deg, var(--bg), var(--bg-mid) 48%, var(--bg2)); background-attachment:fixed; }
+
+  /* drifting mesh orbs — same ambient signature as the deck */
+  .fx-orbs{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+  .fx-orbs::before,.fx-orbs::after{ content:""; position:absolute; border-radius:50%; filter:blur(80px); opacity:.5; will-change:transform; }
+  .fx-orbs::before{ width:46vw; height:46vw; top:-14vw; right:-8vw;
+    background:radial-gradient(circle at 40% 40%, rgba(46,58,230,.55), transparent 65%); animation:drift1 26s ease-in-out infinite alternate; }
+  .fx-orbs::after{ width:40vw; height:40vw; bottom:-16vw; left:-10vw;
+    background:radial-gradient(circle at 50% 50%, rgba(30,156,245,.40), transparent 65%); animation:drift2 32s ease-in-out infinite alternate; }
+  @keyframes drift1{ to{ transform:translate3d(-6vw,5vw,0) scale(1.12); } }
+  @keyframes drift2{ to{ transform:translate3d(5vw,-4vw,0) scale(1.08); } }
+  @media (prefers-reduced-motion: reduce){ .fx-orbs::before,.fx-orbs::after{ animation:none; } }
+  .topbar, .wrap{ position:relative; z-index:1; }
+
+  /* sticky progress */
+  .topbar{ position:sticky; top:0; z-index:20; backdrop-filter:blur(12px);
+    background:rgba(14,10,44,.55); border-bottom:1px solid var(--hair); }
+  .topbar .inner{ max-width:780px; margin:0 auto; padding:12px clamp(16px,4vw,28px); display:flex; align-items:center; gap:14px; }
+  .brand{ font-weight:800; letter-spacing:-.01em; font-size:16px; white-space:nowrap; }
+  .brand b{ color:var(--lime); }
+  .pbar{ flex:1; height:8px; border-radius:99px; background:rgba(255,255,255,.10); overflow:hidden; }
+  .pbar i{ display:block; height:100%; width:0; border-radius:99px;
+    background:linear-gradient(90deg,var(--azure),var(--lime)); transition:width .5s var(--ease); }
+  .pcount{ font-size:13px; font-weight:700; color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap; direction:ltr; }
+
+  .wrap{ max-width:780px; margin:0 auto; padding:clamp(28px,5vw,56px) clamp(16px,4vw,28px) 70px; }
+  .eyebrow{ display:inline-block; padding:6px 14px; border-radius:999px; font-size:11px; font-weight:700;
+    letter-spacing:.2em; text-transform:uppercase; color:var(--lime);
+    background:rgba(198,242,78,.10); border:1px solid rgba(198,242,78,.3); }
+  h1{ font-size:clamp(30px,5vw,52px); font-weight:800; letter-spacing:-.025em; line-height:1.05; margin:16px 0 12px; }
+  h1 .accent{ background:linear-gradient(105deg,var(--lime),var(--blue)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+  .lead{ font-size:clamp(16px,1.6vw,19px); color:var(--muted); max-width:54ch; }
+  .intro{ margin-top:22px; padding:18px 20px; border-radius:16px; background:rgba(255,255,255,.05); border:1px solid var(--hair); font-size:15px; color:var(--muted); }
+  .intro b{ color:var(--text); }
+
+  .row{ display:flex; align-items:center; gap:12px; margin:34px 2px 14px; color:var(--faint);
+    font-size:12px; letter-spacing:.14em; text-transform:uppercase; font-weight:700; } .row::after{ content:""; flex:1; height:1px; background:var(--hair); }
+
+  .step{ position:relative; border-radius:20px; padding:22px 24px; margin-bottom:14px; cursor:pointer;
+    background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03)); border:1px solid var(--hair);
+    box-shadow:0 30px 70px -46px rgba(0,0,0,.7), inset 0 1px 1px rgba(255,255,255,.12);
+    transition:transform .5s var(--ease), border-color .3s, opacity .3s; }
+  .step:hover{ transform:translateY(-3px); }
+  .step::before{ content:""; position:absolute; inset:-7px; z-index:-1; border-radius:24px; background:rgba(255,255,255,.04); border:1px solid var(--hair); }
+  .step.done{ border-color:rgba(198,242,78,.45); }
+  .shead{ display:grid; grid-template-columns:34px 1fr auto; gap:15px; align-items:start; }
+  .check{ width:34px; height:34px; border-radius:10px; border:2px solid var(--hair); display:flex; align-items:center; justify-content:center;
+    font-size:18px; color:transparent; transition:.25s var(--ease); flex-shrink:0; margin-top:2px; }
+  .step.done .check{ background:linear-gradient(180deg,var(--lime),#aada3c); border-color:var(--lime); color:#0b1b2b; }
+  .stt{ font-size:19px; font-weight:800; letter-spacing:-.01em; }
+  .num{ font-family:var(--font); font-weight:800; font-size:13px; color:var(--faint); background:rgba(255,255,255,.06);
+    border:1px solid var(--hair); border-radius:8px; padding:4px 9px; white-space:nowrap; }
+  .num.opt{ color:var(--lime); background:rgba(198,242,78,.10); border-color:rgba(198,242,78,.3); }
+  .sbody{ margin:10px 0 0 49px; }
+  .sbody p{ color:var(--muted); font-size:15px; margin-bottom:10px; }
+  .sbody .why{ color:var(--faint); font-size:13.5px; }
+  .actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; align-items:center; }
+  .link{ display:inline-flex; align-items:center; gap:7px; font-weight:700; font-size:14px; text-decoration:none;
+    color:#0b1b2b; background:linear-gradient(180deg,var(--lime),#b6e63c); padding:9px 16px; border-radius:11px;
+    box-shadow:0 12px 26px -14px rgba(198,242,78,.8); transition:transform .3s var(--ease); }
+  .link:hover{ transform:translateY(-2px); }
+  .link.ghost{ color:var(--text); background:rgba(255,255,255,.07); border:1px solid var(--hair); box-shadow:none; }
+  .warn{ margin-top:10px; font-size:13px; color:#ffd9a8; background:rgba(255,180,90,.10); border:1px solid rgba(255,180,90,.3);
+    padding:9px 13px; border-radius:10px; }
+
+  .prompt{ margin-top:12px; position:relative; background:rgba(0,0,0,.28); border:1px solid var(--hair); border-radius:12px;
+    padding:14px 16px; font-size:14px; color:#dfe8ff; line-height:1.6; }
+  .copy{ position:absolute; top:8px; left:8px; font-family:var(--font); font-size:12px; font-weight:700; cursor:pointer;
+    background:rgba(255,255,255,.08); border:1px solid var(--hair); color:var(--text); border-radius:8px; padding:5px 10px; transition:.2s; }
+  .copy:hover{ background:rgba(198,242,78,.15); }
+
+  .done-banner{ display:none; margin-top:26px; padding:24px; border-radius:20px; text-align:center;
+    background:linear-gradient(180deg, rgba(198,242,78,.14), rgba(198,242,78,.04)); border:1px solid rgba(198,242,78,.4); }
+  .done-banner.show{ display:block; }
+  .done-banner h3{ font-size:24px; font-weight:800; margin-bottom:6px; }
+  .done-banner p{ color:var(--muted); }
+  footer{ margin-top:40px; text-align:center; color:var(--faint); font-size:13px; line-height:1.8; }
+</style>
+</head>
+<body>
+  <div class="fx-orbs"></div>
+  <div class="topbar"><div class="inner">
+    <span class="brand">🐧 Whalo · <b>Claude Code</b></span>
+    <div class="pbar"><i id="pfill"></i></div>
+    <span class="pcount" id="pcount">0 / 6</span>
+  </div></div>
+
+  <div class="wrap">
+    <span class="eyebrow">הכנה לסדנה · 10 דקות</span>
+    <h1>10 דקות עכשיו — <span class="accent">ואתם מוכנים</span> 🚀</h1>
+    <p class="lead">כדי שביום הסדנה נצלול ישר לעשייה (ולא נבזבז זמן על התקנות), עברו על
+      הצ'ק-ליסט הקצר הזה. אין צורך בשום ידע טכני — רק לסמן ✓.</p>
+
+    <div class="intro">
+      <b>מה זה Claude Code בכלל?</b> זה לא "לכתוב קוד". זה לתת לעוזר חכם שיודע לפעול
+      על הקבצים והכלים שלכם — ולבנות בשבילכם דברים. אתם מתארים במילים, הוא עושה.
+    </div>
+
+    <div class="row">הצעדים</div>
+
+    <!-- steps render here -->
+    <div id="steps"></div>
+
+    <div class="done-banner" id="doneBanner">
+      <h3>🎉 אתם מוכנים לסדנה!</h3>
+      <p>כל הכבוד. נתראה — מחכים לבנות איתכם דברים מגניבים. 🐧</p>
+    </div>
+
+    <footer>
+      נתקעתם בשלב כלשהו? אל תתעכבו — כתבו לדניאל ונסדר את זה <b>לפני</b> הסדנה.<br>
+      ההתקדמות נשמרת אוטומטית בדפדפן הזה.
+    </footer>
+  </div>
+
+<script>
+  const STEPS = [
+    { t:"התקינו את אפליקציית Claude", why:"זה הבית של הכל — שם נעבוד.",
+      p:"הורידו את אפליקציית הדסקטופ והתחברו עם המשתמש הארגוני שלכם.",
+      links:[{txt:"⬇ הורדת האפליקציה", href:"https://claude.ai/download"}] },
+    { t:"ודאו ש-Claude Code פעיל באפליקציה", why:"זה החלק שיודע לפעול על קבצים ולבנות כלים.",
+      p:"פתחו את האפליקציה — ודאו שאתם רואים את מצב „Claude Code”. אם לא בטוחים, אל דאגה, נסדר ביחד בהתחלה.",
+      links:[] },
+    { t:"התקינו Node.js", why:"ה„מנוע” שעליו כלים שנבנה ירוצו.",
+      p:"היכנסו ל-nodejs.org והתקינו את גרסת ה-LTS (הכפתור הירוק הגדול). הבא-הבא-סיום.",
+      links:[{txt:"⬇ nodejs.org", href:"https://nodejs.org"}],
+      warn:"אם הלפטוף מבקש סיסמת מנהל או חוסם התקנה — אל תתעכבו, כתבו לדניאל ונסדר מול ה-IT לפני הסדנה." },
+    { t:"Python", optional:true, why:"בשביל ניתוחי דאטה ועיבוד קבצים מתקדמים.",
+      p:"לא חובה! התקינו רק אם תרצו ש-Claude יוכל גם לנתח אקסל/CSV ולעבד קבצים בכמות. אפשר גם להוסיף בהמשך.",
+      links:[{txt:"⬇ python.org", href:"https://www.python.org/downloads/"}] },
+    { t:"חברו את ה-Connectors", why:"ככה Claude יוכל לקרוא מ-Notion, Gmail, Drive, Slack — הכלים שלכם.",
+      p:"באפליקציה: תפריט ההגדרות → Connectors → ודאו שהחיבורים הרלוונטיים שלכם (Notion, Gmail, Drive, Slack) מחוברים.",
+      links:[] },
+    { t:"בדיקת 2 דקות שהכל עובד", why:"ככה נדע מראש שאתם מוכנים — ולא נגלה תקלה ביום עצמו.",
+      p:"פתחו את Claude Code, הדביקו את ההודעה הבאה, וצלמו מסך של התשובה — שלחו לדניאל:",
+      prompt:"מה גרסת ה-Node שמותקנת אצלי? ותגיד לי במשפט אחד מה אתה יכול לעשות בשבילי.",
+      links:[] },
+    { t:"חשבו על משימה אמיתית להביא", why:"בסדנה נהפוך אותה לכלי שעובד בשבילכם.",
+      p:"בחרו משימה אחת חוזרת ומשעממת מהעבודה (לא רגישה!) — דוח שבועי, מיילים חוזרים, מסמכים לסכם. תביאו אותה איתכם.",
+      links:[] },
+  ];
+
+  const KEY = "whalo-setup-progress";
+  let done = {};
+  try { done = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(e){}
+
+  const wrap = document.getElementById('steps');
+  let reqNum = 0;
+  STEPS.forEach((s, i) => {
+    const badge = s.optional ? `<span class="num opt">בונוס · מומלץ</span>` : `<span class="num">שלב ${++reqNum}</span>`;
+    const el = document.createElement('div');
+    el.className = 'step' + (done[i] ? ' done' : '');
+    el.innerHTML = `
+      <div class="shead">
+        <div class="check">✓</div>
+        <div><div class="stt">${s.t}</div></div>
+        ${badge}
+      </div>
+      <div class="sbody">
+        <p>${s.p}</p>
+        ${s.prompt ? `<div class="prompt"><button class="copy" data-p="${encodeURIComponent(s.prompt)}">העתק</button>${s.prompt}</div>` : ``}
+        ${s.warn ? `<div class="warn">⚠️ ${s.warn}</div>` : ``}
+        <div class="actions">
+          ${s.links.map(l=>`<a class="link" href="${l.href}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${l.txt}</a>`).join('')}
+          <span class="why">${s.why}</span>
+        </div>
+      </div>`;
+    el.addEventListener('click', () => {
+      done[i] = !done[i];
+      el.classList.toggle('done', done[i]);
+      try { localStorage.setItem(KEY, JSON.stringify(done)); } catch(e){}
+      updateProgress();
+    });
+    wrap.appendChild(el);
+  });
+
+  // copy buttons
+  document.querySelectorAll('.copy').forEach(b => {
+    b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const txt = decodeURIComponent(b.dataset.p);
+      navigator.clipboard?.writeText(txt);
+      const old = b.textContent; b.textContent = '✓ הועתק'; setTimeout(()=>b.textContent=old, 1500);
+    });
+  });
+
+  function updateProgress(){
+    let n = 0, total = 0;
+    STEPS.forEach((s,i)=>{ if(!s.optional){ total++; if(done[i]) n++; } });   // count required steps only
+    document.getElementById('pfill').style.width = (n/total*100) + '%';
+    document.getElementById('pcount').textContent = n + ' / ' + total;
+    document.getElementById('doneBanner').classList.toggle('show', n === total);
+  }
+  updateProgress();
+</script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>מארגן נכסים + בריף · Whalo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap');
+  :root{ --bg:#19135f; --bg2:#0e0a2c; --hair:rgba(255,255,255,.12); --text:#fff;
+    --muted:rgba(255,255,255,.64); --faint:rgba(255,255,255,.42); --lime:#c6f24e; --blue:#6fbcfa; --azure:#1e9cf5;
+    --ease:cubic-bezier(.32,.72,0,1); --font:'Heebo',sans-serif; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{ font-family:var(--font); color:var(--text); min-height:100vh; line-height:1.55; padding:clamp(20px,4vw,52px);
+    background:radial-gradient(900px 600px at 85% -10%, rgba(30,156,245,.3), transparent 60%),
+      radial-gradient(700px 500px at 0% 110%, rgba(198,242,78,.1), transparent 55%), linear-gradient(180deg,var(--bg),var(--bg2)); }
+  .wrap{ max-width:920px; margin:0 auto; }
+  .eyebrow{ display:inline-block; padding:6px 14px; border-radius:999px; font-size:11px; font-weight:700; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--lime); background:rgba(198,242,78,.1); border:1px solid rgba(198,242,78,.3); }
+  h1{ font-size:clamp(26px,4vw,42px); font-weight:800; letter-spacing:-.02em; margin:14px 0 6px; }
+  .sub{ color:var(--muted); font-size:15px; }
+  .row{ display:flex; align-items:center; gap:12px; margin:26px 2px 14px; color:var(--faint); font-size:12px; letter-spacing:.12em; text-transform:uppercase; font-weight:700; } .row::after{ content:""; flex:1; height:1px; background:var(--hair); }
+  .filters{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px; }
+  .filt{ font-family:var(--font); font-size:13px; font-weight:700; cursor:pointer; padding:7px 14px; border-radius:999px;
+    background:rgba(255,255,255,.06); border:1px solid var(--hair); color:var(--muted); transition:.2s; }
+  .filt.on{ background:linear-gradient(180deg,var(--lime),#b6e63c); color:#0b1b2b; border-color:var(--lime); }
+  .grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:13px; } @media (max-width:760px){ .grid{ grid-template-columns:1fr 1fr; } } @media (max-width:480px){ .grid{ grid-template-columns:1fr; } }
+  .asset{ position:relative; border-radius:16px; padding:18px; background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03));
+    border:1px solid var(--hair); box-shadow:0 22px 56px -44px rgba(0,0,0,.7), inset 0 1px 1px rgba(255,255,255,.1); transition:transform .4s var(--ease); }
+  .asset:hover{ transform:translateY(-3px); }
+  .thumb{ height:64px; border-radius:11px; background:linear-gradient(135deg,rgba(30,156,245,.4),rgba(198,242,78,.3)); display:flex; align-items:center; justify-content:center; font-size:28px; }
+  .asset h4{ font-size:15px; font-weight:800; margin:11px 0 2px; } .asset .ty{ color:var(--faint); font-size:12px; }
+  .chips{ display:flex; flex-wrap:wrap; gap:5px; margin-top:9px; }
+  .chip{ font-size:11px; padding:3px 9px; border-radius:999px; color:var(--blue); background:rgba(30,156,245,.12); border:1px solid rgba(111,188,250,.3); }
+  .st{ position:absolute; top:14px; left:14px; font-size:10px; font-weight:800; padding:2px 8px; border-radius:999px; }
+  .st.done{ color:#9be15d; background:rgba(155,225,93,.14); } .st.wip{ color:#ffcf6b; background:rgba(255,207,107,.14); }
+  .brief{ position:relative; border-radius:18px; padding:24px; background:linear-gradient(180deg,rgba(198,242,78,.08),rgba(255,255,255,.02)); border:1px solid rgba(198,242,78,.3); }
+  .brief h2{ font-size:20px; font-weight:800; margin-bottom:4px; } .brief .for{ color:var(--lime); font-weight:700; font-size:14px; margin-bottom:14px; }
+  .brief .b{ margin-top:12px; } .brief .b .k{ color:var(--faint); font-size:12px; text-transform:uppercase; letter-spacing:.06em; }
+  .brief .b .val{ font-size:14.5px; margin-top:2px; }
+  .pal{ display:flex; gap:6px; margin-top:5px; } .sw{ width:26px; height:26px; border-radius:7px; border:1px solid rgba(255,255,255,.2); }
+  .dd{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; } @media (max-width:520px){ .dd{ grid-template-columns:1fr; } }
+  .dd div{ padding:11px 13px; border-radius:11px; font-size:13.5px; } .dd .do{ background:rgba(155,225,93,.1); border:1px solid rgba(155,225,93,.3); } .dd .dont{ background:rgba(255,143,122,.1); border:1px solid rgba(255,143,122,.3); }
+  footer{ margin-top:24px; color:var(--faint); font-size:12px; text-align:center; line-height:1.7; } code{ background:rgba(255,255,255,.08); padding:2px 7px; border-radius:6px; font-size:12px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <span class="eyebrow">Art · Whalo</span>
+    <h1>מארגן נכסים + בריף</h1>
+    <p class="sub">קטלוג הנכסים של Reef Rumble — מסונן לפי קטגוריה — ובריף ויזואלי לנכס חדש.</p>
+
+    <div class="row">ספריית הנכסים</div>
+    <div class="filters" id="filters"></div>
+    <div class="grid" id="grid"></div>
+
+    <div class="row">בריף ויזואלי — נכס חדש (ע״י ה-Skill asset-brief)</div>
+    <div class="brief">
+      <h2>🐠 דמות חדשה: סוסון ים (Ally)</h2>
+      <div class="for">עקבי עם הסגנון הקיים של המשחק</div>
+      <div class="b"><div class="k">סגנון</div><div class="val">תלת-ממד מעוגל, ידידותי וצבעוני — כמו Pingo. קווים רכים, עיניים גדולות, פרופורציות חמודות.</div></div>
+      <div class="b"><div class="k">פלטה</div>
+        <div class="pal"><span class="sw" style="background:#1e9cf5"></span><span class="sw" style="background:#6fbcfa"></span><span class="sw" style="background:#c6f24e"></span><span class="sw" style="background:#271e96"></span><span class="sw" style="background:#ff9f57"></span></div>
+      </div>
+      <div class="b"><div class="k">רפרנסים מהספרייה</div><div class="val">Pingo — Mascot · Crab — Enemy · Coral Reef BG</div></div>
+      <div class="b"><div class="k">מפרט</div><div class="val">PNG שקוף · 1024×1024 · מצבים: idle, happy, cheer · גרסת @2x</div></div>
+      <div class="dd">
+        <div class="do"><b>✓ כן:</b> צבעי אוקיינוס + הדגשת lime, תאורה רכה, הבעה חיובית.</div>
+        <div class="dont"><b>✕ לא:</b> ריאליזם, צללים קשים, פלטה כהה/אגרסיבית.</div>
+      </div>
+    </div>
+
+    <footer>מקור: <code>data/assets.json</code> · Skill: <code>asset-brief</code> · נתונים מדומים.
+      בעבודה אמיתית הנכסים יושבים ב-Google Drive והקטלוג נטען משם.</footer>
+  </div>
+<script>
+  const ASSETS = [
+    { name:"Pingo — Mascot", type:"דמות", tags:["mascot","hero","penguin"], status:"סופי", ico:"🐧" },
+    { name:"Crab — Enemy", type:"דמות", tags:["enemy","character"], status:"סופי", ico:"🦀" },
+    { name:"Coral Reef BG", type:"רקע", tags:["background","ocean"], status:"סופי", ico:"🪸" },
+    { name:"Deep Sea BG", type:"רקע", tags:["background","dark"], status:"בעבודה", ico:"🌊" },
+    { name:"Coin Icon", type:"UI", tags:["icon","currency"], status:"סופי", ico:"🪙" },
+    { name:"League Badge", type:"UI", tags:["badge","reward"], status:"סופי", ico:"🏅" },
+    { name:"Bubble Burst", type:"אפקט", tags:["vfx","effect"], status:"בעבודה", ico:"💥" },
+    { name:"Treasure Chest", type:"פרופ", tags:["prop","reward"], status:"סופי", ico:"🧰" },
+  ];
+  const types = ["הכל", ...new Set(ASSETS.map(a=>a.type))];
+  const filtEl = document.getElementById('filters'), grid = document.getElementById('grid');
+  let active = "הכל";
+  function renderFilters(){
+    filtEl.innerHTML='';
+    types.forEach(t=>{ const b=document.createElement('button'); b.className='filt'+(t===active?' on':''); b.textContent=t;
+      b.onclick=()=>{ active=t; renderFilters(); renderGrid(); }; filtEl.appendChild(b); });
+  }
+  function renderGrid(){
+    grid.innerHTML='';
+    ASSETS.filter(a=>active==="הכל"||a.type===active).forEach(a=>{
+      const done=a.status==="סופי";
+      const el=document.createElement('div'); el.className='asset';
+      el.innerHTML=`<span class="st ${done?'done':'wip'}">${a.status}</span>
+        <div class="thumb">${a.ico}</div><h4>${a.name}</h4><div class="ty">${a.type}</div>
+        <div class="chips">${a.tags.map(t=>`<span class="chip">#${t}</span>`).join('')}</div>`;
+      grid.appendChild(el);
+    });
+  }
+  renderFilters(); renderGrid();
+</script>
+</body>
+</html>
